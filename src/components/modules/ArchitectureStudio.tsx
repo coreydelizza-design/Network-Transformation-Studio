@@ -2,6 +2,13 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useTheme } from '../../theme/useTheme';
 import { Chip, Mono } from '../shared/Primitives';
 import GttFutureState from './GttFutureState';
+import {
+  PatternElementInspector,
+  PatternElementList,
+  CustomerOverridePanel,
+  usePatternOverrides,
+  PATTERN_ELEMENTS,
+} from './architecture';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    USE CASE TEMPLATE DATA
@@ -371,6 +378,7 @@ const ArchitectureStudio: React.FC = () => {
   const [customerNotes, setCustomerNotes] = useState<Record<string, string>>({});
   const [fitScores, setFitScores] = useState<Record<string, Record<string, number>>>({});
   const [designations, setDesignations] = useState<Record<string, Designation>>({});
+  const patternApi = usePatternOverrides();
 
   const selected = useMemo(() => TEMPLATES.find(tp => tp.id === selectedId)!, [selectedId]);
   const compared = useMemo(() => compareId ? TEMPLATES.find(tp => tp.id === compareId) : null, [compareId]);
@@ -481,6 +489,7 @@ const ArchitectureStudio: React.FC = () => {
       control: t.accent, core: acc, edge: t.amber, cloud: t.cyan,
       dc: t.violet, security: t.rose, saas: t.emerald,
     };
+    const elements = patternApi.getElements(tmpl.id);
     return (
       <svg viewBox="0 0 640 420" style={{ width: '100%', height: '100%', minHeight: 220 }}>
         <defs>
@@ -494,9 +503,12 @@ const ArchitectureStudio: React.FC = () => {
           </linearGradient>
         </defs>
         {tmpl.diagramEdges.map(([fi, ti], i) => {
-          const from = tmpl.diagramNodes[fi];
-          const to = tmpl.diagramNodes[ti];
+          const from = elements[fi] || tmpl.diagramNodes[fi];
+          const to = elements[ti] || tmpl.diagramNodes[ti];
           if (!from || !to) return null;
+          const fApplicable = elements[fi]?.applicable !== false;
+          const tApplicable = elements[ti]?.applicable !== false;
+          if (!fApplicable || !tApplicable) return null;
           const x1 = from.x + 30, y1 = from.y + 25, x2 = to.x + 30, y2 = to.y + 25;
           const dx = x2 - x1, dy = y2 - y1;
           return (
@@ -506,19 +518,34 @@ const ArchitectureStudio: React.FC = () => {
               strokeWidth={1.5} fill="none" filter={`url(#glow-${tmpl.id})`} />
           );
         })}
-        {tmpl.diagramNodes.map((node, i) => {
-          const gc = groupColors[node.group] || acc;
+        {elements.map((el, i) => {
+          const gc = groupColors[el.group] || acc;
+          const isInspected = patternApi.inspectedId === el.id;
+          const hasOverride = !!patternApi.overrides[el.id];
           return (
-            <g key={i}>
-              <rect x={node.x} y={node.y} width={60} height={50} rx={10}
-                fill={isDark ? gc + '10' : gc + '0c'}
-                stroke={gc + '35'} strokeWidth={1.2} />
-              <rect x={node.x} y={node.y} width={60} height={1.5} rx={1}
-                fill={gc} opacity={0.4} />
-              <text x={node.x + 30} y={node.y + 18} textAnchor="middle"
-                style={{ fontSize: 16 }}>{node.icon}</text>
-              {node.label.split('\n').map((line, li) => (
-                <text key={li} x={node.x + 30} y={node.y + 33 + li * 11} textAnchor="middle"
+            <g key={el.id} style={{ cursor: 'pointer', opacity: el.applicable ? 1 : 0.3 }}
+              onClick={() => patternApi.inspectElement(isInspected ? null : el.id)}>
+              <rect x={el.x - 2} y={el.y - 2} width={64} height={54} rx={12}
+                fill="transparent" stroke={isInspected ? gc : 'transparent'} strokeWidth={2}
+                strokeDasharray={isInspected ? '4 2' : 'none'} />
+              <rect x={el.x} y={el.y} width={60} height={50} rx={10}
+                fill={isInspected ? gc + '18' : isDark ? gc + '10' : gc + '0c'}
+                stroke={gc + (isInspected ? '60' : '35')} strokeWidth={isInspected ? 1.5 : 1.2} />
+              <rect x={el.x} y={el.y} width={60} height={1.5} rx={1}
+                fill={gc} opacity={isInspected ? 0.7 : 0.4} />
+              {hasOverride && <circle cx={el.x + 54} cy={el.y + 6} r={3} fill={t.amber} />}
+              {el.quantity > 1 && (
+                <g>
+                  <rect x={el.x + 42} y={el.y + 40} width={18} height={12} rx={3}
+                    fill={gc + '20'} stroke={gc + '40'} strokeWidth={0.5} />
+                  <text x={el.x + 51} y={el.y + 49} textAnchor="middle"
+                    style={{ fontSize: 7, fontFamily: t.fontM, fill: gc, fontWeight: 700 }}>×{el.quantity}</text>
+                </g>
+              )}
+              <text x={el.x + 30} y={el.y + 18} textAnchor="middle"
+                style={{ fontSize: 16 }}>{el.icon}</text>
+              {el.label.split('\n').map((line, li) => (
+                <text key={li} x={el.x + 30} y={el.y + 33 + li * 11} textAnchor="middle"
                   style={{ fontSize: 8, fontFamily: t.fontM, fill: t.textSoft, fontWeight: 600 }}>{line}</text>
               ))}
             </g>
@@ -834,6 +861,33 @@ const ArchitectureStudio: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* ── PATTERN ELEMENTS & CUSTOMER OVERRIDES ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: isCompare ? '1fr' : '1fr 1fr', gap: 16 }}>
+          {/* Pattern Element List */}
+          <div style={panelStyle(acc)}>
+            <div style={panelGlow(acc)} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={labelStyle}>Pattern Elements</div>
+              {patternApi.overrideCount(tmpl.id) > 0 && (
+                <div style={{
+                  fontFamily: t.fontM, fontSize: 8, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+                  background: t.amber + '15', color: t.amber,
+                }}>
+                  {patternApi.overrideCount(tmpl.id)} modified
+                </div>
+              )}
+            </div>
+            <PatternElementList
+              elements={patternApi.getElements(tmpl.id)}
+              accent={acc}
+              api={patternApi}
+            />
+          </div>
+
+          {/* Customer Override Panel */}
+          <CustomerOverridePanel api={patternApi} accent={acc} />
+        </div>
       </div>
     );
   };
@@ -1082,7 +1136,7 @@ const ArchitectureStudio: React.FC = () => {
         {/* Content Area */}
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
           {studioView === 'gtt-future' ? (
-            <GttFutureState useCaseId={selectedId} onBack={() => setStudioView('templates')} />
+            <GttFutureState useCaseId={selectedId} onBack={() => setStudioView('templates')} patternApi={patternApi} />
           ) : compareMode && compared ? (
             <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
               <div style={{ flex: 1, overflowY: 'auto', padding: 20, borderRight: `1px solid ${t.border}` }}>
@@ -1096,6 +1150,16 @@ const ArchitectureStudio: React.FC = () => {
             <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
               {renderTemplateContent(selected)}
             </div>
+          )}
+
+          {/* Pattern Element Inspector — slide-out right panel */}
+          {patternApi.inspectedElement && (
+            <PatternElementInspector
+              element={patternApi.inspectedElement}
+              api={patternApi}
+              accent={accent}
+              onClose={() => patternApi.inspectElement(null)}
+            />
           )}
         </div>
       </div>

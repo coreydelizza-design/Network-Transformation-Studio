@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../theme/useTheme';
 import { Chip, Mono } from '../shared/Primitives';
+import { PatternElementList, CustomerOverridePanel } from './architecture';
+import type { PatternOverridesAPI } from './architecture';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    GTT FUTURE-STATE SOLUTION DATA
@@ -465,9 +467,10 @@ const GTT_SOLUTIONS: GttSolution[] = [
 interface GttFutureStateProps {
   useCaseId: string;
   onBack: () => void;
+  patternApi: PatternOverridesAPI;
 }
 
-const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack }) => {
+const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patternApi }) => {
   const { t, isDark } = useTheme();
   const [expandedDiff, setExpandedDiff] = useState<number | null>(null);
 
@@ -502,61 +505,82 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack }) =>
     dc: t.violet, security: t.rose, saas: t.emerald,
   };
 
-  const renderDiagram = () => (
-    <svg viewBox="0 0 620 380" style={{ width: '100%', height: '100%', minHeight: 240 }}>
-      <defs>
-        <filter id="gtt-glow"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-        <linearGradient id="gtt-edge" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={acc} stopOpacity="0.5" />
-          <stop offset="100%" stopColor={acc} stopOpacity="0.12" />
-        </linearGradient>
-      </defs>
-      {/* Tier bands */}
-      {[0, 1, 2, 3].map(tier => {
-        const nodes = solution.diagramNodes.filter(n => n.tier === tier);
-        if (!nodes.length) return null;
-        const minY = Math.min(...nodes.map(n => n.y)) - 15;
-        const maxY = Math.max(...nodes.map(n => n.y)) + 60;
-        return (
-          <rect key={tier} x={5} y={minY} width={610} height={maxY - minY}
-            rx={10} fill={acc} opacity={isDark ? 0.02 : 0.015}
-            stroke={acc} strokeOpacity={0.06} strokeWidth={1} />
-        );
-      })}
-      {/* Edges */}
-      {solution.diagramEdges.map(([fi, ti], i) => {
-        const from = solution.diagramNodes[fi];
-        const to = solution.diagramNodes[ti];
-        if (!from || !to) return null;
-        const x1 = from.x + 35, y1 = from.y + 28, x2 = to.x + 35, y2 = to.y + 28;
-        const dx = x2 - x1, dy = y2 - y1;
-        return (
-          <path key={i}
-            d={`M ${x1} ${y1} C ${x1 + dx * 0.35} ${y1 + dy * 0.15}, ${x2 - dx * 0.35} ${y2 - dy * 0.15}, ${x2} ${y2}`}
-            stroke="url(#gtt-edge)" strokeWidth={1.5} fill="none" filter="url(#gtt-glow)" />
-        );
-      })}
-      {/* Nodes */}
-      {solution.diagramNodes.map((node, i) => {
-        const gc = groupColors[node.group] || acc;
-        return (
-          <g key={i}>
-            <rect x={node.x} y={node.y} width={70} height={56} rx={10}
-              fill={isDark ? gc + '0e' : gc + '0a'}
-              stroke={gc + '30'} strokeWidth={1.2} />
-            <rect x={node.x} y={node.y} width={70} height={2} rx={1}
-              fill={gc} opacity={0.5} />
-            <text x={node.x + 35} y={node.y + 20} textAnchor="middle"
-              style={{ fontSize: 17 }}>{node.icon}</text>
-            {node.label.split('\n').map((line, li) => (
-              <text key={li} x={node.x + 35} y={node.y + 35 + li * 11} textAnchor="middle"
-                style={{ fontSize: 8, fontFamily: t.fontM, fill: t.textSoft, fontWeight: 600 }}>{line}</text>
-            ))}
-          </g>
-        );
-      })}
-    </svg>
-  );
+  const renderDiagram = () => {
+    const elements = patternApi.getElements(solution.useCaseId);
+    return (
+      <svg viewBox="0 0 620 380" style={{ width: '100%', height: '100%', minHeight: 240 }}>
+        <defs>
+          <filter id="gtt-glow"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          <linearGradient id="gtt-edge" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={acc} stopOpacity="0.5" />
+            <stop offset="100%" stopColor={acc} stopOpacity="0.12" />
+          </linearGradient>
+        </defs>
+        {/* Tier bands */}
+        {[0, 1, 2, 3].map(tier => {
+          const nodes = solution.diagramNodes.filter(n => n.tier === tier);
+          if (!nodes.length) return null;
+          const minY = Math.min(...nodes.map(n => n.y)) - 15;
+          const maxY = Math.max(...nodes.map(n => n.y)) + 60;
+          return (
+            <rect key={tier} x={5} y={minY} width={610} height={maxY - minY}
+              rx={10} fill={acc} opacity={isDark ? 0.02 : 0.015}
+              stroke={acc} strokeOpacity={0.06} strokeWidth={1} />
+          );
+        })}
+        {/* Edges */}
+        {solution.diagramEdges.map(([fi, ti], i) => {
+          const from = elements[fi] || solution.diagramNodes[fi];
+          const to = elements[ti] || solution.diagramNodes[ti];
+          if (!from || !to) return null;
+          const fApplicable = elements[fi]?.applicable !== false;
+          const tApplicable = elements[ti]?.applicable !== false;
+          if (!fApplicable || !tApplicable) return null;
+          const x1 = from.x + 35, y1 = from.y + 28, x2 = to.x + 35, y2 = to.y + 28;
+          const dx = x2 - x1, dy = y2 - y1;
+          return (
+            <path key={i}
+              d={`M ${x1} ${y1} C ${x1 + dx * 0.35} ${y1 + dy * 0.15}, ${x2 - dx * 0.35} ${y2 - dy * 0.15}, ${x2} ${y2}`}
+              stroke="url(#gtt-edge)" strokeWidth={1.5} fill="none" filter="url(#gtt-glow)" />
+          );
+        })}
+        {/* Nodes — clickable with pattern element data */}
+        {elements.map((el, i) => {
+          const gc = groupColors[el.group] || acc;
+          const isInspected = patternApi.inspectedId === el.id;
+          const hasOverride = !!patternApi.overrides[el.id];
+          return (
+            <g key={el.id} style={{ cursor: 'pointer', opacity: el.applicable ? 1 : 0.3 }}
+              onClick={() => patternApi.inspectElement(isInspected ? null : el.id)}>
+              <rect x={el.x - 2} y={el.y - 2} width={74} height={60} rx={12}
+                fill="transparent" stroke={isInspected ? gc : 'transparent'} strokeWidth={2}
+                strokeDasharray={isInspected ? '4 2' : 'none'} />
+              <rect x={el.x} y={el.y} width={70} height={56} rx={10}
+                fill={isInspected ? gc + '18' : isDark ? gc + '0e' : gc + '0a'}
+                stroke={gc + (isInspected ? '60' : '30')} strokeWidth={isInspected ? 1.5 : 1.2} />
+              <rect x={el.x} y={el.y} width={70} height={2} rx={1}
+                fill={gc} opacity={isInspected ? 0.7 : 0.5} />
+              {hasOverride && <circle cx={el.x + 64} cy={el.y + 6} r={3} fill={t.amber} />}
+              {el.quantity > 1 && (
+                <g>
+                  <rect x={el.x + 50} y={el.y + 44} width={20} height={12} rx={3}
+                    fill={gc + '20'} stroke={gc + '40'} strokeWidth={0.5} />
+                  <text x={el.x + 60} y={el.y + 53} textAnchor="middle"
+                    style={{ fontSize: 7, fontFamily: t.fontM, fill: gc, fontWeight: 700 }}>×{el.quantity}</text>
+                </g>
+              )}
+              <text x={el.x + 35} y={el.y + 20} textAnchor="middle"
+                style={{ fontSize: 17 }}>{el.icon}</text>
+              {el.label.split('\n').map((line, li) => (
+                <text key={li} x={el.x + 35} y={el.y + 35 + li * 11} textAnchor="middle"
+                  style={{ fontSize: 8, fontFamily: t.fontM, fill: t.textSoft, fontWeight: 600 }}>{line}</text>
+              ))}
+            </g>
+          );
+        })}
+      </svg>
+    );
+  };
 
   /* ─── Integration Section ─── */
   const integrationSections: { key: keyof typeof solution.integrations; label: string; icon: string; color: string }[] = [
@@ -836,6 +860,33 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack }) =>
               );
             })}
           </div>
+        </div>
+
+        {/* ── PATTERN ELEMENTS & CUSTOMER OVERRIDES ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          {/* Pattern Element List */}
+          <div style={panelStyle(acc)}>
+            <div style={glow(acc)} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={label}>Pattern Elements</div>
+              {patternApi.overrideCount(solution.useCaseId) > 0 && (
+                <div style={{
+                  fontFamily: t.fontM, fontSize: 8, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+                  background: t.amber + '15', color: t.amber,
+                }}>
+                  {patternApi.overrideCount(solution.useCaseId)} modified
+                </div>
+              )}
+            </div>
+            <PatternElementList
+              elements={patternApi.getElements(solution.useCaseId)}
+              accent={acc}
+              api={patternApi}
+            />
+          </div>
+
+          {/* Customer Override Panel */}
+          <CustomerOverridePanel api={patternApi} accent={acc} />
         </div>
 
       </div>
