@@ -1,9 +1,10 @@
 import React from 'react';
 import { useTheme } from '../../../theme/useTheme';
-import { Chip, Mono } from '../../shared/Primitives';
+import { Mono } from '../../shared/Primitives';
 import type { PatternElement } from './types';
-import { PHASE_LABELS } from './types';
+import { APPLICABILITY_META } from './types';
 import type { PatternOverridesAPI } from './usePatternOverrides';
+import ApplicabilityBadge from './ApplicabilityBadge';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PATTERN ELEMENT LIST — compact, clickable inventory of all elements
@@ -45,6 +46,25 @@ const PatternElementList: React.FC<Props> = ({ elements, accent, api }) => {
                 const gc = groupColors[el.group] || accent;
                 const isInspected = api.inspectedId === el.id;
                 const hasOverride = !!api.overrides[el.id];
+                const meta = APPLICABILITY_META[el.applicability];
+                const statusColor = t[meta.colorKey];
+
+                /* Per-status styling */
+                const isInactive = el.applicability === 'not-applicable';
+                const isFuture = el.applicability === 'future-phase';
+                const isOptional = el.applicability === 'optional';
+
+                /* Border style based on applicability */
+                const borderColor = isInspected
+                  ? gc + '30'
+                  : isInactive
+                    ? t.borderSubtle
+                    : isFuture
+                      ? t.violet + '20'
+                      : isOptional
+                        ? t.amber + '15'
+                        : t.borderSubtle;
+
                 return (
                   <div
                     key={el.id}
@@ -53,25 +73,46 @@ const PatternElementList: React.FC<Props> = ({ elements, accent, api }) => {
                       display: 'flex', alignItems: 'center', gap: 10,
                       padding: '8px 10px', borderRadius: 6, cursor: 'pointer',
                       transition: 'all 0.15s',
-                      background: isInspected ? gc + '10' : 'transparent',
-                      border: `1px solid ${isInspected ? gc + '30' : t.borderSubtle}`,
-                      opacity: el.applicable ? 1 : 0.45,
+                      background: isInspected
+                        ? gc + '10'
+                        : isInactive
+                          ? isDark ? 'rgba(255,255,255,0.008)' : 'rgba(0,0,0,0.008)'
+                          : 'transparent',
+                      border: `1px solid ${borderColor}`,
+                      borderStyle: isFuture ? 'dashed' : isOptional ? 'dashed' : 'solid',
+                      opacity: meta.listOpacity,
                     }}
                   >
-                    <span style={{ fontSize: 16, width: 22, textAlign: 'center', flexShrink: 0 }}>{el.icon}</span>
+                    {/* Icon with status-aware styling */}
+                    <span style={{
+                      fontSize: 16, width: 22, textAlign: 'center', flexShrink: 0,
+                      filter: isInactive ? 'grayscale(0.8)' : isFuture ? 'grayscale(0.4)' : 'none',
+                    }}>{el.icon}</span>
+
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontFamily: t.fontD, fontSize: 11, fontWeight: 600, color: isInspected ? gc : t.text }}>
+                        <span style={{
+                          fontFamily: t.fontD, fontSize: 11, fontWeight: 600,
+                          color: isInactive ? t.textDim : isInspected ? gc : t.text,
+                          textDecoration: isInactive ? 'line-through' : 'none',
+                          textDecorationColor: t.textDim + '40',
+                        }}>
                           {el.label}
                         </span>
                         {hasOverride && <div style={{ width: 5, height: 5, borderRadius: 3, background: t.amber, flexShrink: 0 }} />}
                       </div>
-                      <div style={{ fontFamily: t.fontM, fontSize: 8, color: t.textDim, marginTop: 1 }}>
-                        {el.deploymentRole}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 2 }}>
+                        <span style={{ fontFamily: t.fontM, fontSize: 8, color: t.textDim }}>
+                          {el.deploymentRole}
+                        </span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                      {el.quantity > 0 && (
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                      {/* Applicability badge */}
+                      <ApplicabilityBadge status={el.applicability} compact />
+
+                      {el.quantity > 0 && el.applicability !== 'not-applicable' && (
                         <span style={{
                           fontFamily: t.fontM, fontSize: 9, fontWeight: 700, color: gc,
                           background: gc + '12', padding: '2px 6px', borderRadius: 4,

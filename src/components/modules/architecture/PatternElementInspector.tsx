@@ -2,8 +2,10 @@ import React from 'react';
 import { useTheme } from '../../../theme/useTheme';
 import { Chip, Mono } from '../../shared/Primitives';
 import type { PatternElement, PatternOverride } from './types';
-import { PHASE_LABELS, MANAGEMENT_MODELS } from './types';
+import { PHASE_LABELS, MANAGEMENT_MODELS, APPLICABILITY_META } from './types';
 import type { PatternOverridesAPI } from './usePatternOverrides';
+import PatternElementToggle from './PatternElementToggle';
+import ApplicabilityBadge from './ApplicabilityBadge';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PATTERN ELEMENT INSPECTOR — Slide-out editor panel
@@ -20,6 +22,7 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
   const { t, isDark } = useTheme();
   const el = element;
   const hasOverrides = !!api.overrides[el.id];
+  const meta = APPLICABILITY_META[el.applicability];
 
   const set = (field: keyof PatternOverride, value: unknown) => api.setOverride(el.id, field, value);
 
@@ -34,11 +37,6 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
   };
   const selectBase: React.CSSProperties = { ...inputBase, cursor: 'pointer' };
   const textareaBase: React.CSSProperties = { ...inputBase, resize: 'vertical' as const, lineHeight: 1.5 };
-  const toggleRow: React.CSSProperties = {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '8px 10px', borderRadius: 5, border: `1px solid ${t.borderSubtle}`,
-    background: isDark ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.015)',
-  };
   const sectionGap: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: 10 };
 
   const groupColors: Record<string, string> = {
@@ -46,6 +44,10 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
     dc: t.violet, security: t.rose, saas: t.emerald,
   };
   const gc = groupColors[el.group] || accent;
+
+  /* Dim the entire panel when element is inactive */
+  const isInactive = el.applicability === 'not-applicable';
+  const panelDim = isInactive ? 0.55 : 1;
 
   return (
     <div style={{
@@ -77,11 +79,13 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
           <div style={{
             width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 20, background: gc + '15', border: `1px solid ${gc}30`, flexShrink: 0,
+            opacity: panelDim,
           }}>{el.icon}</div>
           <div>
-            <div style={{ fontFamily: t.fontD, fontSize: 13, fontWeight: 700, color: t.text }}>{el.label}</div>
-            <div style={{ display: 'flex', gap: 5, marginTop: 3 }}>
+            <div style={{ fontFamily: t.fontD, fontSize: 13, fontWeight: 700, color: t.text, opacity: panelDim }}>{el.label}</div>
+            <div style={{ display: 'flex', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
               <Chip color={gc} small>{el.category}</Chip>
+              <ApplicabilityBadge status={el.applicability} showLabel compact />
               {hasOverrides && <Chip color={t.amber} small>Modified</Chip>}
             </div>
           </div>
@@ -91,8 +95,44 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-        {/* ── Identity ── */}
+        {/* ── Applicability ── */}
         <div style={sectionGap}>
+          <Mono size={8} color={t.textDim}>Applicability</Mono>
+          <PatternElementToggle
+            value={el.applicability}
+            onChange={v => set('applicability', v)}
+          />
+          {isInactive && (
+            <div style={{
+              padding: '8px 10px', borderRadius: 5,
+              background: t.rose + '08', border: `1px solid ${t.rose}15`,
+              fontFamily: t.fontB, fontSize: 10, color: t.rose, lineHeight: 1.5,
+            }}>
+              This element is marked as not applicable and will appear greyed out in the diagram.
+            </div>
+          )}
+          {el.applicability === 'future-phase' && (
+            <div style={{
+              padding: '8px 10px', borderRadius: 5,
+              background: t.violet + '08', border: `1px solid ${t.violet}15`,
+              fontFamily: t.fontB, fontSize: 10, color: t.violet, lineHeight: 1.5,
+            }}>
+              Planned for a future implementation phase. Shown with muted styling in the diagram.
+            </div>
+          )}
+          {el.applicability === 'optional' && (
+            <div style={{
+              padding: '8px 10px', borderRadius: 5,
+              background: t.amber + '08', border: `1px solid ${t.amber}15`,
+              fontFamily: t.fontB, fontSize: 10, color: t.amber, lineHeight: 1.5,
+            }}>
+              Optional element — may or may not be included depending on customer requirements.
+            </div>
+          )}
+        </div>
+
+        {/* ── Identity ── */}
+        <div style={{ ...sectionGap, opacity: panelDim }}>
           <Mono size={8} color={t.textDim}>Identity</Mono>
           <div>
             <div style={fieldLabel}>Label</div>
@@ -108,22 +148,9 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
           </div>
         </div>
 
-        {/* ── Applicability & Quantity ── */}
-        <div style={sectionGap}>
-          <Mono size={8} color={t.textDim}>Applicability & Quantity</Mono>
-          <div style={toggleRow}>
-            <span style={{ fontFamily: t.fontB, fontSize: 11, color: t.textSoft }}>Applicable</span>
-            <button onClick={() => set('applicable', !el.applicable)} style={{
-              width: 38, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer', position: 'relative',
-              background: el.applicable ? t.emerald + '30' : t.borderSubtle, transition: 'all 0.2s',
-            }}>
-              <div style={{
-                width: 14, height: 14, borderRadius: 7, position: 'absolute', top: 3,
-                left: el.applicable ? 21 : 3, background: el.applicable ? t.emerald : t.textDim,
-                transition: 'all 0.2s', boxShadow: `0 0 4px ${el.applicable ? t.emerald + '40' : 'transparent'}`,
-              }} />
-            </button>
-          </div>
+        {/* ── Quantity ── */}
+        <div style={{ ...sectionGap, opacity: panelDim }}>
+          <Mono size={8} color={t.textDim}>Quantity</Mono>
           <div>
             <div style={fieldLabel}>Quantity</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -138,7 +165,7 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
         </div>
 
         {/* ── Deployment ── */}
-        <div style={sectionGap}>
+        <div style={{ ...sectionGap, opacity: panelDim }}>
           <Mono size={8} color={t.textDim}>Deployment</Mono>
           <div>
             <div style={fieldLabel}>Deployment Role</div>
@@ -157,7 +184,7 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
         </div>
 
         {/* ── Attributes ── */}
-        <div style={sectionGap}>
+        <div style={{ ...sectionGap, opacity: panelDim }}>
           <Mono size={8} color={t.textDim}>Attributes</Mono>
           <div>
             <div style={fieldLabel}>Security</div>
@@ -174,7 +201,7 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
         </div>
 
         {/* ── Operations ── */}
-        <div style={sectionGap}>
+        <div style={{ ...sectionGap, opacity: panelDim }}>
           <Mono size={8} color={t.textDim}>Operations</Mono>
           <div>
             <div style={fieldLabel}>Management Model</div>
