@@ -1,6 +1,8 @@
 import type {
   Customer, MaturityDomain, MaturityMap, PainItem, PaletteItem,
   RoadmapTrack, RoadmapItem, ArchTemplate, ArchNode, ArchEdge, NavItem, NodeMeta,
+  GttUseCaseTemplate, PatternElement, ArchitectureZone,
+  GttDifferentiatorOverlay, CustomerRequirements,
 } from '../types';
 
 /* ═══════════════════════════════════════════════════
@@ -237,3 +239,530 @@ export const SEED_ROADMAP: RoadmapItem[] = [
   { track: 'automation', phase: 2, label: 'Intent-based orchestration', type: 'milestone' },
 ];
 
+/* ═══════════════════════════════════════════════════
+   GTT USE CASE TEMPLATES
+   ═══════════════════════════════════════════════════ */
+export const GTT_USE_CASE_TEMPLATES: GttUseCaseTemplate[] = [
+  {
+    id: 'global-sdwan',
+    label: 'Global SD-WAN Transformation',
+    icon: '🌐',
+    color: '#3b82f6',
+    description: 'Replace legacy MPLS with a global SD-WAN fabric spanning all regions. Leverage GTT Tier-1 backbone for deterministic underlay performance and Envision for unified orchestration and analytics.',
+    category: 'WAN',
+    defaultRequirements: {
+      bandwidthTier: 'high',
+      resiliencyTier: 'enhanced',
+      internetBreakout: 'regional',
+      managedServiceLevel: 'fully-managed',
+    },
+    recommendedPatternIds: ['sd-wan', 'gtt-backbone', 'envision-edge', 'managed-noc'],
+  },
+  {
+    id: 'secure-branch',
+    label: 'Secure Branch Modernization',
+    icon: '🏢',
+    color: '#a78bfa',
+    description: 'Standardize branch connectivity with integrated networking and security at every site. Deploy virtualized edge functions to consolidate appliances and enforce consistent security posture globally.',
+    category: 'Edge',
+    defaultRequirements: {
+      bandwidthTier: 'standard',
+      resiliencyTier: 'enhanced',
+      securityNeeds: ['firewall', 'sse', 'ztna'],
+      internetBreakout: 'local',
+      managedServiceLevel: 'co-managed',
+    },
+    recommendedPatternIds: ['envision-edge', 'firewall', 'sse', 'sd-wan'],
+  },
+  {
+    id: 'sase-sse',
+    label: 'SASE / SSE Transformation',
+    icon: '🛡',
+    color: '#fb7185',
+    description: 'Converge networking and security into a cloud-delivered SASE architecture. Eliminate backhauling, enforce zero-trust access policies, and gain unified visibility across all users and applications.',
+    category: 'Security',
+    defaultRequirements: {
+      securityNeeds: ['sase', 'ztna', 'casb', 'swg', 'dlp'],
+      internetBreakout: 'local',
+      resiliencyTier: 'enhanced',
+      managedServiceLevel: 'co-managed',
+    },
+    recommendedPatternIds: ['sase', 'ztna', 'casb', 'swg', 'dlp'],
+  },
+  {
+    id: 'hybrid-cloud-vdc',
+    label: 'Hybrid Cloud + VDC',
+    icon: '☁',
+    color: '#22d3ee',
+    description: 'Build a hybrid cloud fabric connecting on-premises data centers to public cloud and GTT VDC. Deliver low-latency cloud on-ramps with consistent security policy and workload portability.',
+    category: 'Cloud',
+    defaultRequirements: {
+      cloudEnvironments: ['aws', 'azure', 'vdc'],
+      bandwidthTier: 'premium',
+      resiliencyTier: 'mission-critical',
+      internetBreakout: 'regional',
+      managedServiceLevel: 'co-managed',
+    },
+    recommendedPatternIds: ['vdc', 'cloud-aws', 'cloud-azure', 'gtt-backbone', 'cloud-onramp'],
+  },
+  {
+    id: 'retail-edge',
+    label: 'Retail / Multi-site Edge Standardization',
+    icon: '🏪',
+    color: '#fb923c',
+    description: 'Deploy a repeatable, zero-touch edge stack across hundreds of retail or distributed locations. Standardize connectivity, security, and local compute with centralized orchestration and rapid provisioning.',
+    category: 'Edge',
+    defaultRequirements: {
+      siteTypes: ['retail', 'branch'],
+      bandwidthTier: 'standard',
+      resiliencyTier: 'basic',
+      internetBreakout: 'local',
+      managedServiceLevel: 'fully-managed',
+    },
+    recommendedPatternIds: ['envision-edge', 'sd-wan', 'lte-backup', 'local-compute'],
+  },
+  {
+    id: 'manufacturing',
+    label: 'Manufacturing / Plant Connectivity',
+    icon: '🏭',
+    color: '#64748b',
+    description: 'Connect industrial plants and manufacturing sites with segmented, resilient networking. Isolate OT from IT traffic, enforce strict access control, and support local compute for real-time process data.',
+    category: 'Edge',
+    defaultRequirements: {
+      siteTypes: ['plant', 'hub', 'dc'],
+      bandwidthTier: 'high',
+      resiliencyTier: 'mission-critical',
+      securityNeeds: ['firewall', 'ztna'],
+      internetBreakout: 'regional',
+      managedServiceLevel: 'co-managed',
+    },
+    recommendedPatternIds: ['envision-edge', 'local-compute', 'firewall', 'segmentation'],
+  },
+  {
+    id: 'dc-exit',
+    label: 'Data Center Exit / Cloud Migration',
+    icon: '🔄',
+    color: '#06b6d4',
+    description: 'Migrate workloads out of owned or leased data centers to public cloud and GTT VDC. Re-architect connectivity to eliminate legacy cross-connects and deliver cloud-native network paths.',
+    category: 'Cloud',
+    defaultRequirements: {
+      cloudEnvironments: ['aws', 'azure', 'vdc'],
+      bandwidthTier: 'premium',
+      resiliencyTier: 'enhanced',
+      internetBreakout: 'regional',
+      managedServiceLevel: 'fully-managed',
+    },
+    recommendedPatternIds: ['vdc', 'cloud-aws', 'cloud-azure', 'gtt-backbone', 'dia'],
+  },
+  {
+    id: 'business-continuity',
+    label: 'Business Continuity / Resiliency',
+    icon: '🔒',
+    color: '#34d399',
+    description: 'Design a multi-path, multi-region resilient architecture that sustains operations through carrier failures, site outages, and cloud disruptions. Guarantee recovery-time objectives with automated failover.',
+    category: 'Resilience',
+    defaultRequirements: {
+      resiliencyTier: 'mission-critical',
+      bandwidthTier: 'high',
+      internetBreakout: 'regional',
+      managedServiceLevel: 'fully-managed',
+    },
+    recommendedPatternIds: ['gtt-backbone', 'dual-transport', 'lte-backup', 'vdc'],
+  },
+  {
+    id: 'regulated-sovereignty',
+    label: 'Regulated / Sovereignty-Sensitive Deployment',
+    icon: '⚖',
+    color: '#eab308',
+    description: 'Deploy network and cloud infrastructure that meets strict data sovereignty, residency, and regulatory requirements. Ensure traffic stays in-region with compliant hosting and auditable security controls.',
+    category: 'Compliance',
+    defaultRequirements: {
+      dataSovereignty: true,
+      complianceNeeds: ['gdpr', 'sovereignty'],
+      securityNeeds: ['firewall', 'soc'],
+      resiliencyTier: 'enhanced',
+      internetBreakout: 'regional',
+      managedServiceLevel: 'co-managed',
+    },
+    recommendedPatternIds: ['vdc', 'firewall', 'segmentation', 'soc'],
+  },
+  {
+    id: 'ai-edge',
+    label: 'AI Edge / Local Processing',
+    icon: '🤖',
+    color: '#a3e635',
+    description: 'Position compute and inference at the network edge for latency-sensitive AI and ML workloads. Leverage GTT backbone for model distribution and Envision Edge for orchestrated edge lifecycle management.',
+    category: 'Edge',
+    defaultRequirements: {
+      localCompute: true,
+      bandwidthTier: 'premium',
+      resiliencyTier: 'enhanced',
+      internetBreakout: 'local',
+      managedServiceLevel: 'co-managed',
+    },
+    recommendedPatternIds: ['envision-edge', 'local-compute', 'gtt-backbone', 'vdc'],
+  },
+];
+
+/* ═══════════════════════════════════════════════════
+   GTT PATTERN ELEMENTS
+   ═══════════════════════════════════════════════════ */
+export const GTT_PATTERN_ELEMENTS: PatternElement[] = [
+  // ── Sites ──
+  {
+    id: 'branch-site', label: 'Branch Site', icon: '🏢',
+    category: 'site', placementZone: 'branch', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '100 Mbps', users: 50, haEnabled: false },
+    customerNotes: '',
+    narrativeImpact: 'Represents a standard branch office requiring secure, optimized connectivity to corporate and cloud resources.',
+  },
+  {
+    id: 'regional-hub', label: 'Regional Hub', icon: '🏛',
+    category: 'site', placementZone: 'branch', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '1 Gbps', users: 500, haEnabled: true },
+    customerNotes: '',
+    narrativeImpact: 'Establishes a regional aggregation point for traffic consolidation, breakout, and localized service delivery.',
+  },
+  {
+    id: 'data-center', label: 'Data Center', icon: '🖥',
+    category: 'site', placementZone: 'cloud-vdc', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '10 Gbps', tier: 'Tier III', redundancy: 'active-active' },
+    customerNotes: '',
+    narrativeImpact: 'Anchors the architecture with an enterprise data center hosting critical workloads and shared services.',
+  },
+  {
+    id: 'retail-site', label: 'Retail Site', icon: '🏪',
+    category: 'site', placementZone: 'branch', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '50 Mbps', posTerminals: 4, guestWifi: true },
+    customerNotes: '',
+    narrativeImpact: 'Adds a lightweight retail location with PCI-compliant segmentation and guest wireless isolation.',
+  },
+  {
+    id: 'plant-site', label: 'Plant / Industrial Site', icon: '🏭',
+    category: 'site', placementZone: 'branch', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '500 Mbps', otSegmented: true, localBreakout: false },
+    customerNotes: '',
+    narrativeImpact: 'Introduces an industrial site with OT/IT segmentation and deterministic connectivity for process-critical systems.',
+  },
+  {
+    id: 'remote-user', label: 'Remote User', icon: '👤',
+    category: 'user', placementZone: 'user-app', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { accessMethod: 'ZTNA', mfaEnforced: true },
+    customerNotes: '',
+    narrativeImpact: 'Extends secure, identity-aware access to remote and mobile users without relying on legacy VPN infrastructure.',
+  },
+
+  // ── Transport ──
+  {
+    id: 'dia', label: 'Dedicated Internet Access', icon: '🌍',
+    category: 'transport', placementZone: 'access', gttDifferentiator: 'backbone',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '500 Mbps', sla: '99.95%', burstable: true },
+    customerNotes: '',
+    narrativeImpact: 'Delivers GTT DIA with SLA-backed uptime as the primary or secondary internet path at each site.',
+  },
+  {
+    id: 'broadband', label: 'Broadband Underlay', icon: '📡',
+    category: 'transport', placementZone: 'access', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '200 Mbps', provider: 'local-isp' },
+    customerNotes: '',
+    narrativeImpact: 'Adds cost-effective broadband as a secondary underlay for non-critical traffic or SD-WAN diversity.',
+  },
+  {
+    id: 'mpls', label: 'MPLS Circuit (Legacy)', icon: '🔗',
+    category: 'transport', placementZone: 'access', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { bandwidth: '100 Mbps', cos: 'gold', contractEnd: '2027-Q2' },
+    customerNotes: '',
+    narrativeImpact: 'Retains existing MPLS connectivity during migration, scheduled for phased decommission as SD-WAN matures.',
+  },
+  {
+    id: 'lte-backup', label: 'LTE / 5G Backup', icon: '📶',
+    category: 'transport', placementZone: 'access', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { technology: '4G/5G', failoverOnly: true, dataCapGb: 50 },
+    customerNotes: '',
+    narrativeImpact: 'Provides cellular failover to maintain site connectivity during primary circuit outages or degradation.',
+  },
+  {
+    id: 'dual-transport', label: 'Dual-Transport Resilience', icon: '⚡',
+    category: 'transport', placementZone: 'access', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { primary: 'DIA', secondary: 'broadband', failoverMs: 500 },
+    customerNotes: '',
+    narrativeImpact: 'Ensures sub-second failover between diverse transport paths for mission-critical site availability.',
+  },
+
+  // ── Backbone ──
+  {
+    id: 'gtt-backbone', label: 'GTT Tier-1 IP Backbone', icon: '🌐',
+    category: 'backbone', placementZone: 'backbone', gttDifferentiator: 'backbone',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { regions: 'global', latencySla: true, ipv6: true },
+    customerNotes: '',
+    narrativeImpact: 'Adds GTT Tier-1 backbone as the global transport fabric with SLA-grade latency, jitter, and packet-loss guarantees.',
+  },
+  {
+    id: 'cloud-onramp', label: 'Cloud On-Ramp', icon: '🚀',
+    category: 'backbone', placementZone: 'backbone', gttDifferentiator: 'backbone',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { providers: 'AWS, Azure', directConnect: true },
+    customerNotes: '',
+    narrativeImpact: 'Establishes dedicated cloud on-ramps via GTT backbone for low-latency, private-path access to hyperscaler environments.',
+  },
+
+  // ── Security ──
+  {
+    id: 'firewall', label: 'Next-Gen Firewall', icon: '🔥',
+    category: 'security', placementZone: 'security', gttDifferentiator: 'integrated-security',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { vendor: 'Palo Alto', threatPrevention: true, ipsEnabled: true },
+    customerNotes: '',
+    narrativeImpact: 'Enforces perimeter and micro-segmentation policies with deep packet inspection and threat prevention at every trust boundary.',
+  },
+  {
+    id: 'sse', label: 'Security Service Edge', icon: '🛡',
+    category: 'security', placementZone: 'security', gttDifferentiator: 'integrated-security',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { vendor: 'Zscaler', proxyMode: 'inline', sslInspection: true },
+    customerNotes: '',
+    narrativeImpact: 'Delivers cloud-based security inspection for all internet-bound traffic, eliminating the need for on-premises proxy infrastructure.',
+  },
+  {
+    id: 'sase', label: 'SASE Platform', icon: '🔐',
+    category: 'security', placementZone: 'security', gttDifferentiator: 'integrated-security',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { vendor: 'integrated', networkIntegrated: true },
+    customerNotes: '',
+    narrativeImpact: 'Converges SD-WAN and security into a unified SASE platform for consistent policy enforcement from any location.',
+  },
+  {
+    id: 'ztna', label: 'Zero Trust Network Access', icon: '🔑',
+    category: 'security', placementZone: 'security', gttDifferentiator: 'integrated-security',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { identityProvider: 'Azure AD', devicePosture: true, mfa: true },
+    customerNotes: '',
+    narrativeImpact: 'Replaces legacy VPN with identity-and-context-aware application access that verifies every session before granting connectivity.',
+  },
+  {
+    id: 'casb', label: 'Cloud Access Security Broker', icon: '☁',
+    category: 'security', placementZone: 'security', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { inlineMode: true, apiMode: true, sanctionedApps: 200 },
+    customerNotes: '',
+    narrativeImpact: 'Provides visibility and control over sanctioned and unsanctioned SaaS usage with inline and API-based enforcement.',
+  },
+  {
+    id: 'swg', label: 'Secure Web Gateway', icon: '🌐',
+    category: 'security', placementZone: 'security', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { urlFiltering: true, malwareScanning: true, sslDecrypt: true },
+    customerNotes: '',
+    narrativeImpact: 'Filters and inspects all web traffic to block threats, enforce acceptable use, and maintain regulatory compliance.',
+  },
+  {
+    id: 'dlp', label: 'Data Loss Prevention', icon: '📋',
+    category: 'security', placementZone: 'security', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { policyEngine: 'regex+ml', channels: 'web, email, endpoint' },
+    customerNotes: '',
+    narrativeImpact: 'Prevents exfiltration of sensitive data across web, email, and endpoint channels using policy-driven content inspection.',
+  },
+  {
+    id: 'soc', label: 'Security Operations Center', icon: '🎯',
+    category: 'security', placementZone: 'ops', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { coverage: '24x7', siemIntegrated: true, responseTimeSla: '15 min' },
+    customerNotes: '',
+    narrativeImpact: 'Provides 24×7 security monitoring, threat detection, and incident response with SLA-backed mean-time-to-acknowledge.',
+  },
+
+  // ── Cloud ──
+  {
+    id: 'vdc', label: 'GTT Virtual Data Center', icon: '🏗',
+    category: 'cloud', placementZone: 'cloud-vdc', gttDifferentiator: 'vdc',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { region: 'EU-West', computeTier: 'high-performance', storageType: 'SSD' },
+    customerNotes: '',
+    narrativeImpact: 'Deploys GTT VDC as a sovereign-ready, backbone-connected hosting platform with guaranteed data residency and low-latency cloud access.',
+  },
+  {
+    id: 'cloud-aws', label: 'AWS Environment', icon: '🟠',
+    category: 'cloud', placementZone: 'cloud-vdc', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { regions: 'us-east-1, eu-west-1', directConnect: true },
+    customerNotes: '',
+    narrativeImpact: 'Connects AWS workloads via dedicated cloud on-ramp with private, SLA-grade paths instead of public internet transit.',
+  },
+  {
+    id: 'cloud-azure', label: 'Azure Environment', icon: '🔵',
+    category: 'cloud', placementZone: 'cloud-vdc', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { regions: 'eastus, westeurope', expressRoute: true },
+    customerNotes: '',
+    narrativeImpact: 'Integrates Azure via ExpressRoute for deterministic performance to Microsoft 365, Azure workloads, and hybrid identity services.',
+  },
+  {
+    id: 'cloud-gcp', label: 'GCP Environment', icon: '🟢',
+    category: 'cloud', placementZone: 'cloud-vdc', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { regions: 'us-central1, europe-west1', partnerInterconnect: true },
+    customerNotes: '',
+    narrativeImpact: 'Extends connectivity to Google Cloud via Partner Interconnect for analytics, AI/ML, and data platform workloads.',
+  },
+
+  // ── Edge ──
+  {
+    id: 'envision-edge', label: 'GTT EnvisionEDGE', icon: '⚙',
+    category: 'edge', placementZone: 'branch', gttDifferentiator: 'envision-edge',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { formFactor: 'virtual', vnfs: 'firewall, sd-wan, router', zeroTouch: true },
+    customerNotes: '',
+    narrativeImpact: 'Deploys GTT EnvisionEDGE as a virtualized universal CPE, hosting multiple network functions on a single platform with zero-touch provisioning.',
+  },
+  {
+    id: 'local-compute', label: 'Edge Compute', icon: '💻',
+    category: 'edge', placementZone: 'branch', gttDifferentiator: 'envision-edge',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { gpuEnabled: false, containerRuntime: 'containerd', storageGb: 256 },
+    customerNotes: '',
+    narrativeImpact: 'Positions compute capacity at the network edge for latency-sensitive applications, local data processing, and AI inference workloads.',
+  },
+  {
+    id: 'segmentation', label: 'Network Segmentation', icon: '🔀',
+    category: 'edge', placementZone: 'branch', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { method: 'VRF + VLAN', zones: 'corporate, guest, iot, ot' },
+    customerNotes: '',
+    narrativeImpact: 'Enforces micro-segmentation at the branch to isolate corporate, guest, IoT, and OT traffic domains with strict inter-zone policies.',
+  },
+
+  // ── Operations ──
+  {
+    id: 'managed-noc', label: 'GTT Managed NOC', icon: '📊',
+    category: 'operations', placementZone: 'ops', gttDifferentiator: 'global-consistency',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { coverage: '24x7', proactiveMonitoring: true, changeManagement: true },
+    customerNotes: '',
+    narrativeImpact: 'Provides GTT 24×7 network operations center with proactive monitoring, automated alerting, and managed change execution.',
+  },
+  {
+    id: 'envision-platform', label: 'GTT Envision Platform', icon: '📈',
+    category: 'operations', placementZone: 'ops', gttDifferentiator: 'envision',
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { analytics: true, selfService: true, apiAccess: true },
+    customerNotes: '',
+    narrativeImpact: 'Delivers unified visibility, analytics, and self-service orchestration across the entire GTT-managed network estate via the Envision portal.',
+  },
+  {
+    id: 'orchestrator', label: 'SD-WAN Orchestrator', icon: '🎛',
+    category: 'operations', placementZone: 'ops', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { vendor: 'VMware/Fortinet', policyTemplates: true, apiDriven: true },
+    customerNotes: '',
+    narrativeImpact: 'Centralizes SD-WAN policy management, template-driven provisioning, and application-aware routing decisions across all sites.',
+  },
+  {
+    id: 'sd-wan', label: 'SD-WAN Overlay', icon: '🔀',
+    category: 'transport', placementZone: 'access', gttDifferentiator: null,
+    applicable: true, enabled: false, quantity: 1,
+    editableProps: { vendor: 'VMware/Fortinet', appAwareRouting: true, encryption: 'AES-256' },
+    customerNotes: '',
+    narrativeImpact: 'Establishes an intelligent SD-WAN overlay with application-aware routing, encryption, and dynamic path selection across all transport links.',
+  },
+];
+
+/* ═══════════════════════════════════════════════════
+   GTT ARCHITECTURE ZONES
+   ═══════════════════════════════════════════════════ */
+export const GTT_ARCHITECTURE_ZONES: ArchitectureZone[] = [
+  { id: 'user-app',  label: 'Users & Applications',     color: '#3b82f6', yOrder: 0 },
+  { id: 'branch',    label: 'Branch / Site Layer',       color: '#a78bfa', yOrder: 1 },
+  { id: 'access',    label: 'Access / Transport',        color: '#fbbf24', yOrder: 2 },
+  { id: 'backbone',  label: 'GTT Backbone',              color: '#34d399', yOrder: 3 },
+  { id: 'security',  label: 'Security Services',         color: '#fb7185', yOrder: 4 },
+  { id: 'cloud-vdc', label: 'Cloud / VDC / DC',          color: '#22d3ee', yOrder: 5 },
+  { id: 'ops',       label: 'Operations / Observability', color: '#eab308', yOrder: 6 },
+];
+
+/* ═══════════════════════════════════════════════════
+   GTT DIFFERENTIATOR OVERLAYS
+   ═══════════════════════════════════════════════════ */
+export const GTT_DIFFERENTIATOR_OVERLAYS: GttDifferentiatorOverlay[] = [
+  {
+    id: 'backbone',
+    label: 'Global Tier 1 Backbone',
+    icon: '🌐',
+    color: '#34d399',
+    description: 'GTT operates one of the largest Tier-1 IP backbones globally, delivering deterministic latency, packet loss, and jitter SLAs across 600+ PoPs.',
+    affectedZones: ['backbone', 'access'],
+  },
+  {
+    id: 'envision',
+    label: 'Unified Edge-Core-Cloud',
+    icon: '📈',
+    color: '#3b82f6',
+    description: 'The Envision platform provides a single pane of glass for orchestration, analytics, and lifecycle management spanning edge, core, and cloud domains.',
+    affectedZones: ['user-app', 'branch', 'access', 'backbone', 'security', 'cloud-vdc', 'ops'],
+  },
+  {
+    id: 'envision-edge',
+    label: 'EnvisionEDGE Virtualized Edge',
+    icon: '⚙',
+    color: '#a78bfa',
+    description: 'EnvisionEDGE virtualizes branch network functions onto a universal CPE platform, eliminating appliance sprawl with zero-touch deployment and centralized VNF lifecycle management.',
+    affectedZones: ['branch', 'security'],
+  },
+  {
+    id: 'integrated-security',
+    label: 'Integrated Networking + Security',
+    icon: '🛡',
+    color: '#fb7185',
+    description: 'GTT embeds security functions directly into the network fabric — firewall, SSE, ZTNA, and SASE — delivering consistent policy enforcement without separate security appliance stacks.',
+    affectedZones: ['access', 'backbone', 'security'],
+  },
+  {
+    id: 'global-consistency',
+    label: 'Global Service Consistency',
+    icon: '🌍',
+    color: '#fbbf24',
+    description: 'Standardized service delivery across all regions ensures every site — regardless of geography — receives the same SLA, security posture, and operational support model.',
+    affectedZones: ['user-app', 'branch', 'access', 'backbone', 'security', 'cloud-vdc', 'ops'],
+  },
+  {
+    id: 'vdc',
+    label: 'VDC Hybrid Cloud Platform',
+    icon: '🏗',
+    color: '#22d3ee',
+    description: 'GTT Virtual Data Center provides sovereign-ready, backbone-connected IaaS with guaranteed data residency, enabling hybrid cloud architectures without public internet dependency.',
+    affectedZones: ['cloud-vdc', 'backbone'],
+  },
+];
+
+/* ═══════════════════════════════════════════════════
+   DEFAULT CUSTOMER REQUIREMENTS
+   ═══════════════════════════════════════════════════ */
+export const DEFAULT_REQUIREMENTS: CustomerRequirements = {
+  customerName: 'Meridian Financial Group',
+  industry: 'Financial Services & Insurance',
+  regions: ['North America', 'EMEA', 'APAC'],
+  siteCount: 187,
+  siteTypes: ['branch', 'hub', 'dc', 'remote-user'],
+  bandwidthTier: 'high',
+  resiliencyTier: 'enhanced',
+  securityNeeds: ['firewall', 'sse', 'ztna', 'casb', 'swg', 'dlp', 'soc'],
+  complianceNeeds: ['sox', 'pci-dss', 'gdpr'],
+  cloudEnvironments: ['aws', 'azure', 'vdc'],
+  internetBreakout: 'regional',
+  dataSovereignty: true,
+  localCompute: false,
+  managedServiceLevel: 'co-managed',
+  notes: 'Prioritize carrier consolidation and zero-trust migration. M&A integration capability is a strategic requirement.',
+};

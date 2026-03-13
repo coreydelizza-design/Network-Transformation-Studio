@@ -113,3 +113,67 @@ export interface NavItem {
   icon: string;
   phase: number | null;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Architecture Studio — GTT solution design types
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export interface GttUseCaseTemplate {
+  id: string;
+  label: string;
+  icon: string;
+  color: string;
+  description: string;
+  category: 'WAN' | 'Security' | 'Cloud' | 'Edge' | 'Resilience' | 'Compliance';
+  defaultRequirements: Partial<CustomerRequirements>;
+  recommendedPatternIds: string[];
+}
+
+export interface CustomerRequirements {
+  customerName: string;
+  industry: string;
+  regions: ('North America' | 'EMEA' | 'APAC' | 'LATAM')[];
+  siteCount: number;
+  siteTypes: string[];
+  bandwidthTier: 'standard' | 'high' | 'premium';
+  resiliencyTier: 'basic' | 'enhanced' | 'mission-critical';
+  securityNeeds: string[];
+  complianceNeeds: string[];
+  cloudEnvironments: string[];
+  internetBreakout: 'centralized' | 'regional' | 'local';
+  dataSovereignty: boolean;
+  localCompute: boolean;
+  managedServiceLevel: 'co-managed' | 'fully-managed' | 'advisory';
+  notes: string;
+}
+
+export interface PatternElement {
+  id: string;
+  label: string;
+  icon: string;
+  category: 'site' | 'transport' | 'backbone' | 'security' | 'cloud' | 'edge' | 'operations' | 'user';
+  placementZone: 'branch' | 'access' | 'backbone' | 'security' | 'cloud-vdc' | 'user-app' | 'ops';
+  gttDifferentiator: 'backbone' | 'envision' | 'envision-edge' | 'integrated-security' | 'global-consistency' | 'vdc' | null;
+  applicable: boolean;
+  enabled: boolean;
+  quantity: number;
+  editableProps: Record<string, string | number | boolean>;
+  customerNotes: string;
+  narrativeImpact: string;
+}
+
+export interface ArchitectureZone {
+  id: string;
+  label: string;
+  color: string;
+  yOrder: number;
+}
+
+export interface GttDifferentiatorOverlay {
+  id: string;
+  label: string;
+  icon: string;
+  color: string;
+  description: string;
+  affectedZones: string[];
+}

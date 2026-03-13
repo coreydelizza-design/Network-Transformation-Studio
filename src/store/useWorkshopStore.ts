@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { PainScores, MaturityMap, ArchNode, ArchEdge, WorkshopNote } from '../types';
-import { INIT_PAIN_SCORES, INIT_MATURITY, TEMPLATES, EMPTY_META } from '../data/seed';
+import type { PainScores, MaturityMap, ArchNode, ArchEdge, WorkshopNote, CustomerRequirements, PatternElement } from '../types';
+import { INIT_PAIN_SCORES, INIT_MATURITY, TEMPLATES, EMPTY_META, DEFAULT_REQUIREMENTS, GTT_PATTERN_ELEMENTS, GTT_USE_CASE_TEMPLATES } from '../data/seed';
 
 interface WorkshopState {
   // Navigation
@@ -21,7 +21,7 @@ interface WorkshopState {
   maturity: MaturityMap;
   setMaturityScore: (key: string, field: 'current' | 'target', value: number) => void;
 
-  // Architecture canvas
+  // Architecture canvas (legacy — used by FutureStateVision)
   archNodes: ArchNode[];
   archEdges: ArchEdge[];
   setArchNodes: (nodes: ArchNode[]) => void;
@@ -38,6 +38,20 @@ interface WorkshopState {
   visionSliders: Record<string, number>;
   setVisionPosture: (p: string) => void;
   setVisionSlider: (key: string, value: number) => void;
+
+  // Architecture Studio — GTT
+  selectedUseCaseId: string | null;
+  setSelectedUseCaseId: (id: string | null) => void;
+  customerRequirements: CustomerRequirements;
+  setCustomerRequirements: (reqs: Partial<CustomerRequirements>) => void;
+  patternElements: PatternElement[];
+  setPatternElements: (elements: PatternElement[]) => void;
+  togglePatternElement: (id: string) => void;
+  setPatternQuantity: (id: string, qty: number) => void;
+  setPatternNote: (id: string, note: string) => void;
+  applyUseCaseTemplate: (templateId: string) => void;
+  activeOverlays: string[];
+  toggleOverlay: (id: string) => void;
 }
 
 export const useWorkshopStore = create<WorkshopState>((set) => ({
@@ -91,4 +105,58 @@ export const useWorkshopStore = create<WorkshopState>((set) => ({
   visionSliders: { secModel: 7, netModel: 6, branchCtrl: 5, cloudAdj: 8, zeroTrust: 9, observ: 7, auto: 8, resil: 7, aiEdge: 6, supportModel: 7 },
   setVisionPosture: (p) => set({ visionPosture: p }),
   setVisionSlider: (key, value) => set((s) => ({ visionSliders: { ...s.visionSliders, [key]: value } })),
+
+  // Architecture Studio — GTT
+  selectedUseCaseId: null,
+  setSelectedUseCaseId: (id) => set({ selectedUseCaseId: id }),
+
+  customerRequirements: { ...DEFAULT_REQUIREMENTS },
+  setCustomerRequirements: (reqs) =>
+    set((s) => ({ customerRequirements: { ...s.customerRequirements, ...reqs } })),
+
+  patternElements: GTT_PATTERN_ELEMENTS.map((p) => ({ ...p })),
+  setPatternElements: (elements) => set({ patternElements: elements }),
+
+  togglePatternElement: (id) =>
+    set((s) => ({
+      patternElements: s.patternElements.map((p) =>
+        p.id === id ? { ...p, enabled: !p.enabled } : p,
+      ),
+    })),
+
+  setPatternQuantity: (id, qty) =>
+    set((s) => ({
+      patternElements: s.patternElements.map((p) =>
+        p.id === id ? { ...p, quantity: qty } : p,
+      ),
+    })),
+
+  setPatternNote: (id, note) =>
+    set((s) => ({
+      patternElements: s.patternElements.map((p) =>
+        p.id === id ? { ...p, customerNotes: note } : p,
+      ),
+    })),
+
+  applyUseCaseTemplate: (templateId) =>
+    set((s) => {
+      const tpl = GTT_USE_CASE_TEMPLATES.find((t) => t.id === templateId);
+      if (!tpl) return {};
+      return {
+        selectedUseCaseId: templateId,
+        customerRequirements: { ...s.customerRequirements, ...tpl.defaultRequirements },
+        patternElements: s.patternElements.map((p) => ({
+          ...p,
+          enabled: tpl.recommendedPatternIds.includes(p.id),
+        })),
+      };
+    }),
+
+  activeOverlays: ['backbone', 'envision', 'envision-edge', 'integrated-security', 'global-consistency', 'vdc'],
+  toggleOverlay: (id) =>
+    set((s) => ({
+      activeOverlays: s.activeOverlays.includes(id)
+        ? s.activeOverlays.filter((o) => o !== id)
+        : [...s.activeOverlays, id],
+    })),
 }));
