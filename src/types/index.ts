@@ -177,3 +177,18 @@ export interface GttDifferentiatorOverlay {
   description: string;
   affectedZones: string[];
 }
+
+export interface GttService {
+  id: string;
+  product: string;
+  family: 'Connectivity' | 'Security' | 'Cloud' | 'Edge' | 'Managed' | 'Voice';
+  icon: string;
+  color: string;
+  inPlace: boolean;
+  status: 'active' | 'pending' | 'trial' | 'not-deployed';
+  sites: number | null;
+  coverage: string;
+  contractEnd: string;
+  notes: string;
+  expandable: boolean;
+}

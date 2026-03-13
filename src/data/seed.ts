@@ -2,7 +2,7 @@ import type {
   Customer, MaturityDomain, MaturityMap, PainItem, PaletteItem,
   RoadmapTrack, RoadmapItem, ArchTemplate, ArchNode, ArchEdge, NavItem, NodeMeta,
   GttUseCaseTemplate, PatternElement, ArchitectureZone,
-  GttDifferentiatorOverlay, CustomerRequirements,
+  GttDifferentiatorOverlay, CustomerRequirements, GttService,
 } from '../types';
 
 /* ═══════════════════════════════════════════════════
@@ -766,3 +766,24 @@ export const DEFAULT_REQUIREMENTS: CustomerRequirements = {
   managedServiceLevel: 'co-managed',
   notes: 'Prioritize carrier consolidation and zero-trust migration. M&A integration capability is a strategic requirement.',
 };
+
+/* ═══════════════════════════════════════════════════
+   GTT SERVICE INVENTORY (Estate Mapper)
+   ═══════════════════════════════════════════════════ */
+export const INITIAL_GTT_SERVICES: GttService[] = [
+  { id: 'gtt-dia',       product: 'GTT Dedicated Internet Access', family: 'Connectivity', icon: '🌍', color: '#3b82f6', inPlace: true,  status: 'active',       sites: 34,   coverage: 'NA + EMEA',       contractEnd: '2027-Q2', notes: 'Primary DIA at 34 branches, 500 Mbps avg', expandable: true },
+  { id: 'gtt-sdwan',     product: 'GTT SD-WAN',                    family: 'Connectivity', icon: '📡', color: '#6366f1', inPlace: true,  status: 'active',       sites: 34,   coverage: 'NA pilot',        contractEnd: '2027-Q2', notes: 'VMware overlay on 34 NA sites',           expandable: true },
+  { id: 'gtt-mpls',      product: 'GTT IP Transit / MPLS',         family: 'Connectivity', icon: '🔗', color: '#f59e0b', inPlace: true,  status: 'active',       sites: 12,   coverage: 'EMEA backbone',   contractEnd: '2026-Q4', notes: 'Legacy MPLS — migration candidate',       expandable: false },
+  { id: 'gtt-wavelength', product: 'GTT Wavelength / Ethernet',    family: 'Connectivity', icon: '⚡', color: '#22d3ee', inPlace: true,  status: 'active',       sites: 3,    coverage: 'DC interconnect', contractEnd: '2028-Q1', notes: '10G links between East/West/London DCs',  expandable: false },
+  { id: 'gtt-sse',       product: 'GTT Secure Service Edge',       family: 'Security',     icon: '🛡', color: '#fb7185', inPlace: false, status: 'not-deployed', sites: null, coverage: '',                contractEnd: '',        notes: '',                                       expandable: true },
+  { id: 'gtt-ddos',      product: 'GTT DDoS Mitigation',           family: 'Security',     icon: '🔥', color: '#ef4444', inPlace: true,  status: 'active',       sites: 5,    coverage: 'DC + HQ',         contractEnd: '2027-Q2', notes: 'Corero-based, 5 Gbps scrubbing',         expandable: true },
+  { id: 'gtt-mfw',       product: 'GTT Managed Firewall',          family: 'Security',     icon: '🧱', color: '#dc2626', inPlace: false, status: 'not-deployed', sites: null, coverage: '',                contractEnd: '',        notes: '',                                       expandable: true },
+  { id: 'gtt-cloud-aws', product: 'GTT Cloud Connect — AWS',       family: 'Cloud',        icon: '🟠', color: '#f97316', inPlace: true,  status: 'active',       sites: 2,    coverage: 'us-east, eu-west', contractEnd: '2027-Q3', notes: 'Direct Connect 10G, 2 regions',          expandable: true },
+  { id: 'gtt-cloud-azure', product: 'GTT Cloud Connect — Azure',   family: 'Cloud',        icon: '🔵', color: '#3b82f6', inPlace: true,  status: 'active',       sites: 2,    coverage: 'eastus, westeurope', contractEnd: '2027-Q3', notes: 'ExpressRoute 5G, 2 regions',           expandable: true },
+  { id: 'gtt-cloud-gcp', product: 'GTT Cloud Connect — GCP',       family: 'Cloud',        icon: '🟢', color: '#22c55e', inPlace: false, status: 'not-deployed', sites: null, coverage: '',                contractEnd: '',        notes: '',                                       expandable: true },
+  { id: 'gtt-vdc',       product: 'GTT Virtual Data Center',       family: 'Cloud',        icon: '🏗', color: '#06b6d4', inPlace: false, status: 'not-deployed', sites: null, coverage: '',                contractEnd: '',        notes: '',                                       expandable: true },
+  { id: 'gtt-envision',  product: 'GTT Envision Platform',         family: 'Managed',      icon: '📈', color: '#a78bfa', inPlace: true,  status: 'active',       sites: 34,   coverage: 'SD-WAN sites',    contractEnd: '2027-Q2', notes: 'Portal + analytics for managed sites',   expandable: true },
+  { id: 'gtt-mnoc',      product: 'GTT Managed NOC',               family: 'Managed',      icon: '📊', color: '#8b5cf6', inPlace: true,  status: 'active',       sites: 34,   coverage: '24x7 NA',         contractEnd: '2027-Q2', notes: '24/7 monitoring, proactive alerting',    expandable: true },
+  { id: 'gtt-edge',      product: 'GTT EnvisionEDGE',              family: 'Edge',         icon: '⚙',  color: '#a78bfa', inPlace: false, status: 'trial',        sites: 2,    coverage: 'PoC — 2 branches', contractEnd: '',        notes: 'uCPE trial at 2 NY branches',           expandable: true },
+  { id: 'gtt-voice',     product: 'GTT SIP Trunking',              family: 'Voice',        icon: '📞', color: '#64748b', inPlace: true,  status: 'active',       sites: 6,    coverage: 'HQ + contact ctrs', contractEnd: '2026-Q4', notes: '500 concurrent channels',               expandable: false },
+];

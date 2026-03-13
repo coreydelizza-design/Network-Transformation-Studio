@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { PainScores, MaturityMap, ArchNode, ArchEdge, WorkshopNote, CustomerRequirements, PatternElement } from '../types';
-import { INIT_PAIN_SCORES, INIT_MATURITY, TEMPLATES, EMPTY_META, DEFAULT_REQUIREMENTS, GTT_PATTERN_ELEMENTS, GTT_USE_CASE_TEMPLATES } from '../data/seed';
+import type { PainScores, MaturityMap, ArchNode, ArchEdge, WorkshopNote, CustomerRequirements, PatternElement, GttService } from '../types';
+import { INIT_PAIN_SCORES, INIT_MATURITY, TEMPLATES, EMPTY_META, DEFAULT_REQUIREMENTS, GTT_PATTERN_ELEMENTS, GTT_USE_CASE_TEMPLATES, INITIAL_GTT_SERVICES } from '../data/seed';
 
 interface WorkshopState {
   // Navigation
@@ -52,6 +52,13 @@ interface WorkshopState {
   applyUseCaseTemplate: (templateId: string) => void;
   activeOverlays: string[];
   toggleOverlay: (id: string) => void;
+
+  // GTT Service Inventory (Estate Mapper → Architecture Studio)
+  gttServices: GttService[];
+  toggleGttService: (id: string) => void;
+  updateGttServiceStatus: (id: string, status: GttService['status']) => void;
+  updateGttServiceNotes: (id: string, notes: string) => void;
+  updateGttServiceSites: (id: string, sites: number | null) => void;
 }
 
 export const useWorkshopStore = create<WorkshopState>((set) => ({
@@ -158,5 +165,34 @@ export const useWorkshopStore = create<WorkshopState>((set) => ({
       activeOverlays: s.activeOverlays.includes(id)
         ? s.activeOverlays.filter((o) => o !== id)
         : [...s.activeOverlays, id],
+    })),
+
+  // GTT Service Inventory
+  gttServices: INITIAL_GTT_SERVICES.map((s) => ({ ...s })),
+  toggleGttService: (id) =>
+    set((s) => ({
+      gttServices: s.gttServices.map((svc) =>
+        svc.id === id
+          ? { ...svc, inPlace: !svc.inPlace, status: !svc.inPlace ? 'active' : 'not-deployed' }
+          : svc,
+      ),
+    })),
+  updateGttServiceStatus: (id, status) =>
+    set((s) => ({
+      gttServices: s.gttServices.map((svc) =>
+        svc.id === id ? { ...svc, status } : svc,
+      ),
+    })),
+  updateGttServiceNotes: (id, notes) =>
+    set((s) => ({
+      gttServices: s.gttServices.map((svc) =>
+        svc.id === id ? { ...svc, notes } : svc,
+      ),
+    })),
+  updateGttServiceSites: (id, sites) =>
+    set((s) => ({
+      gttServices: s.gttServices.map((svc) =>
+        svc.id === id ? { ...svc, sites } : svc,
+      ),
     })),
 }));
