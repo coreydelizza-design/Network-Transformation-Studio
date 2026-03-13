@@ -18,11 +18,12 @@ const Sidebar: React.FC = () => {
       <div style={{ padding: collapsed ? '16px 8px' : '20px 18px', borderBottom: `1px solid ${t.border}`, display: 'flex', alignItems: 'center', gap: 11, minHeight: 64 }}>
         <div style={{
           width: 32, height: 32, borderRadius: 9, flexShrink: 0,
-          background: `linear-gradient(135deg, ${t.accent}, ${t.violet})`,
+          background: `linear-gradient(135deg, ${t.emerald}, #059669)`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: t.fontD, fontSize: 15, fontWeight: 900, color: '#fff',
-          boxShadow: `0 0 14px ${t.accent}30`,
-        }}>N</div>
+          fontFamily: t.fontD, fontSize: 10, fontWeight: 900, color: '#fff',
+          letterSpacing: 0.5,
+          boxShadow: `0 0 14px ${t.emerald}30`,
+        }}>GTT</div>
         {!collapsed && (
           <div>
             <div style={{ fontFamily: t.fontD, fontSize: 13, fontWeight: 800, color: t.text, lineHeight: 1.1, letterSpacing: -0.3 }}>NETWORK</div>
