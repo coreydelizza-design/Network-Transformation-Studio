@@ -47,46 +47,6 @@ export interface PainItem {
 
 export type PainScores = Record<string, number>;
 
-export interface PaletteItem {
-  type: string;
-  label: string;
-  icon: string;
-  cat: string;
-  color: string;
-  defaultMeta?: Partial<NodeMeta>;
-}
-
-export interface NodeMeta {
-  name: string;
-  role: string;
-  status: string;
-  owner: string;
-  notes: string;
-  criticality: string;
-  phase: number;
-}
-
-export interface ArchNode {
-  id: string;
-  type: string;
-  label: string;
-  x: number;
-  y: number;
-  meta: NodeMeta;
-}
-
-export interface ArchEdge {
-  from: string;
-  to: string;
-}
-
-export interface ArchTemplate {
-  label: string;
-  desc: string;
-  nodes: ArchNode[];
-  edges: ArchEdge[];
-}
-
 export interface RoadmapTrack {
   id: string;
   label: string;

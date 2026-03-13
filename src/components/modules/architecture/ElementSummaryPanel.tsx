@@ -41,12 +41,13 @@ const ElementSummaryPanel: React.FC<Props> = ({ elements, accent }) => {
 
   return (
     <div style={{
-      background: t.bgCard, borderRadius: t.r.lg, border: `1px solid ${accent}20`,
-      padding: 14, position: 'relative', overflow: 'hidden', backdropFilter: 'blur(12px)',
+      background: `linear-gradient(135deg, ${t.bgCard}, ${accent}03)`, borderRadius: t.r.lg,
+      border: `1px solid ${accent}20`,
+      padding: 16, position: 'relative', overflow: 'hidden', backdropFilter: 'blur(12px)',
     }}>
       <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, height: 1,
-        background: `linear-gradient(90deg, transparent, ${accent}50, transparent)`,
+        position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+        background: `linear-gradient(90deg, transparent 5%, ${accent}40 30%, ${accent}70 50%, ${accent}40 70%, transparent 95%)`,
       }} />
 
       <div style={{
@@ -85,7 +86,7 @@ const ElementSummaryPanel: React.FC<Props> = ({ elements, accent }) => {
       {/* Mini bar visualization */}
       {elements.length > 0 && (
         <div style={{
-          display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', gap: 1,
+          display: 'flex', height: 8, borderRadius: 4, overflow: 'hidden', gap: 1,
           marginBottom: 12,
         }}>
           {active > 0 && (

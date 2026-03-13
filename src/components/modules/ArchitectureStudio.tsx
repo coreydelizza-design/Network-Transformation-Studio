@@ -51,8 +51,8 @@ const ArchitectureStudio: React.FC = () => {
   });
 
   const panelGlow = (acc: string): React.CSSProperties => ({
-    position: 'absolute', top: 0, left: 0, right: 0, height: 1,
-    background: `linear-gradient(90deg, transparent, ${acc}50, transparent)`,
+    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+    background: `linear-gradient(90deg, transparent 5%, ${acc}40 30%, ${acc}70 50%, ${acc}40 70%, transparent 95%)`,
   });
 
   const labelStyle: React.CSSProperties = {
@@ -143,6 +143,26 @@ const ArchitectureStudio: React.FC = () => {
               strokeWidth={1.5} fill="none" filter={`url(#glow-${tmpl.id})`} />
           );
         })}
+        {/* Tier labels */}
+        {(() => {
+          const tiers = [...new Set(elements.map(e => e.group))];
+          const tierLabels: Record<string, string> = { control: 'CONTROL', core: 'CORE', edge: 'EDGE', cloud: 'CLOUD', dc: 'DATA CENTER', security: 'SECURITY', saas: 'SAAS' };
+          const tierYs: Record<string, number[]> = {};
+          elements.forEach(e => { (tierYs[e.group] = tierYs[e.group] || []).push(e.y); });
+          return tiers.map(g => {
+            const ys = tierYs[g];
+            if (!ys || !ys.length) return null;
+            const midY = (Math.min(...ys) + Math.max(...ys)) / 2 + 25;
+            return (
+              <text key={g} x={8} y={midY} style={{
+                fontSize: 7, fontFamily: t.fontM, fontWeight: 700, fill: t.textDim,
+                letterSpacing: 1.5, opacity: 0.5,
+              }} transform={`rotate(-90, 8, ${midY})`} textAnchor="middle">
+                {tierLabels[g] || g.toUpperCase()}
+              </text>
+            );
+          });
+        })()}
         {elements.map((el, i) => {
           const gc = groupColors[el.group] || acc;
           const isInspected = patternApi.inspectedId === el.id;
@@ -199,6 +219,25 @@ const ArchitectureStudio: React.FC = () => {
     );
   };
 
+  const renderDiagramLegend = () => (
+    <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
+      {(['active', 'optional', 'future-phase', 'not-applicable'] as const).map(status => {
+        const m = APPLICABILITY_META[status];
+        const c = t[m.colorKey];
+        return (
+          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 4, background: c, opacity: m.nodeOpacity,
+              border: status === 'not-applicable' ? `1px dashed ${c}60` : 'none',
+              boxSizing: 'border-box' }} />
+            <span style={{ fontFamily: t.fontM, fontSize: 7, color: t.textDim, letterSpacing: 0.5 }}>
+              {m.label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   /* ═══════════════════════════════════════════════════════════════════════════
      TEMPLATE CONTENT PANELS
      ═══════════════════════════════════════════════════════════════════════════ */
@@ -215,7 +254,7 @@ const ArchitectureStudio: React.FC = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, flex: 1, minWidth: 0 }}>
 
         {/* ── OVERVIEW HEADER ── */}
-        <div style={{ ...panelStyle(acc), padding: '24px 28px' }}>
+        <div style={{ ...panelStyle(acc), padding: '24px 28px', background: `linear-gradient(135deg, ${t.bgCard}, ${acc}04)` }}>
           <div style={panelGlow(acc)} />
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
             <div style={{
@@ -368,9 +407,10 @@ const ArchitectureStudio: React.FC = () => {
               <div style={{
                 position: 'absolute', inset: 0, borderRadius: t.r.md,
                 backgroundImage: `radial-gradient(circle, ${isDark ? 'rgba(40,55,85,0.2)' : 'rgba(148,163,184,0.15)'} 1px, transparent 1px)`,
-                backgroundSize: '20px 20px', pointerEvents: 'none',
+                backgroundSize: '16px 16px', pointerEvents: 'none',
               }} />
               {renderDiagram(tmpl, acc)}
+              {renderDiagramLegend()}
             </div>
           </div>
 
@@ -470,7 +510,7 @@ const ArchitectureStudio: React.FC = () => {
                     {Array.from({ length: 10 }, (_, i) => (
                       <button key={i} onClick={() => setFit(tmpl.id, dim, i + 1)}
                         style={{
-                          flex: 1, height: 8, borderRadius: 3, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                          flex: 1, height: 10, borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                           background: i < score
                             ? `linear-gradient(135deg, ${barColor}cc, ${barColor})`
                             : isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)',
@@ -497,7 +537,10 @@ const ArchitectureStudio: React.FC = () => {
               width: '100%', background: t.bgInput, border: `1px solid ${t.border}`, borderRadius: t.r.sm,
               color: t.text, fontFamily: t.fontB, fontSize: 12, padding: '12px 14px', resize: 'vertical',
               lineHeight: 1.6, outline: 'none',
+              transition: 'border-color 0.2s',
             }}
+            onFocus={e => e.currentTarget.style.borderColor = acc + '50'}
+            onBlur={e => e.currentTarget.style.borderColor = t.border}
           />
           {customerNotes[tmpl.id] && (
             <div style={{ marginTop: 6, fontFamily: t.fontM, fontSize: 8, color: t.textDim }}>
@@ -602,8 +645,9 @@ const ArchitectureStudio: React.FC = () => {
             <div style={{ fontFamily: t.fontD, fontSize: 12, fontWeight: 700, color: isSelected ? acc : t.text }}>
               {tmpl.title}
             </div>
-            <div style={{ fontFamily: t.fontM, fontSize: 8, color: t.textDim, letterSpacing: 0.5, marginTop: 1 }}>
-              {tmpl.applicabilityTags.slice(0, 2).join(' · ')}
+            <div style={{ fontFamily: t.fontB, fontSize: 9, color: t.textDim, marginTop: 2, lineHeight: 1.3,
+              overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any }}>
+              {tmpl.subtitle}
             </div>
           </div>
         </div>
@@ -638,17 +682,19 @@ const ArchitectureStudio: React.FC = () => {
 
       {/* ── LEFT PANEL — Template Selector ── */}
       <div style={{
-        width: 250, background: t.bgPanel, borderRight: `1px solid ${t.border}`,
+        width: 268, background: t.bgPanel, borderRight: `1px solid ${t.border}`,
         display: 'flex', flexDirection: 'column', flexShrink: 0,
       }}>
         {/* Header */}
-        <div style={{ padding: '16px 16px 14px', borderBottom: `1px solid ${t.border}` }}>
+        <div style={{ padding: '18px 16px 16px', borderBottom: `1px solid ${t.border}`,
+background: isDark ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.01)', }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              width: 28, height: 28, borderRadius: 8,
+              width: 32, height: 32, borderRadius: 8,
               background: `linear-gradient(135deg, ${t.accent}, ${t.violet})`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: t.fontD, fontSize: 13, fontWeight: 900, color: '#fff',
+              fontFamily: t.fontD, fontSize: 14, fontWeight: 900, color: '#fff',
+              boxShadow: `0 2px 12px ${t.accent}30`,
             }}>A</div>
             <div>
               <div style={{ fontFamily: t.fontD, fontSize: 12, fontWeight: 800, color: t.text }}>Architecture</div>
@@ -723,7 +769,7 @@ const ArchitectureStudio: React.FC = () => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Top Bar */}
         <div style={{
-          height: 48, background: t.bgPanel, borderBottom: `1px solid ${t.border}`,
+          height: 50, background: isDark ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.008)', borderBottom: `1px solid ${t.border}`,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', flexShrink: 0,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -749,7 +795,7 @@ const ArchitectureStudio: React.FC = () => {
                       cursor: 'pointer', transition: 'all 0.15s',
                       display: 'flex', alignItems: 'center', gap: 5,
                     }}>
-                    <span style={{ fontSize: 12 }}>{v.icon}</span> {v.label}
+                    <span style={{ fontSize: 13, opacity: active ? 1 : 0.5 }}>{v.icon}</span> {v.label}
                   </button>
                 );
               })}
@@ -794,8 +840,10 @@ const ArchitectureStudio: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
-              {renderTemplateContent(selected)}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+              <div style={{ maxWidth: 1100 }}>
+                {renderTemplateContent(selected)}
+              </div>
             </div>
           )}
 

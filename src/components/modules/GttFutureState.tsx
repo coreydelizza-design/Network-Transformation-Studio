@@ -35,8 +35,8 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
     padding: 20, backdropFilter: 'blur(12px)', position: 'relative', overflow: 'hidden',
   });
   const glow = (c: string): React.CSSProperties => ({
-    position: 'absolute', top: 0, left: 0, right: 0, height: 1,
-    background: `linear-gradient(90deg, transparent, ${c}50, transparent)`,
+    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+    background: `linear-gradient(90deg, transparent 5%, ${c}40 30%, ${c}70 50%, ${c}40 70%, transparent 95%)`,
   });
   const label: React.CSSProperties = {
     fontFamily: t.fontM, fontSize: 9, color: t.textDim,
@@ -70,6 +70,21 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
             <rect key={tier} x={5} y={minY} width={610} height={maxY - minY}
               rx={10} fill={acc} opacity={isDark ? 0.02 : 0.015}
               stroke={acc} strokeOpacity={0.06} strokeWidth={1} />
+          );
+        })}
+        {/* Tier labels */}
+        {[0, 1, 2, 3].map(tier => {
+          const nodes = solution.diagramNodes.filter(n => n.tier === tier);
+          if (!nodes.length) return null;
+          const tierLabels = ['ORCHESTRATION', 'CORE FABRIC', 'EDGE / ACCESS', 'SERVICES'];
+          const midY = (Math.min(...nodes.map(n => n.y)) + Math.max(...nodes.map(n => n.y))) / 2 + 28;
+          return (
+            <text key={`tl-${tier}`} x={14} y={midY} style={{
+              fontSize: 7, fontFamily: t.fontM, fontWeight: 700, fill: acc,
+              letterSpacing: 1.5, opacity: 0.35,
+            }} transform={`rotate(-90, 14, ${midY})`} textAnchor="middle">
+              {tierLabels[tier]}
+            </text>
           );
         })}
         {/* Edges */}
@@ -158,22 +173,24 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 1200 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 1100 }}>
 
         {/* ── HERO HEADER ── */}
         <div style={{
-          ...panelStyle(acc), padding: '28px 32px',
-          background: `linear-gradient(135deg, ${t.bgCard}, ${acc}06)`,
+          ...panelStyle(acc), padding: '32px 36px',
+          background: `linear-gradient(135deg, ${t.bgCard}, ${acc}08, ${t.bgCard})`,
         }}>
           <div style={glow(acc)} />
           {/* Back + breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             <button onClick={onBack} style={{
-              padding: '5px 12px', borderRadius: t.r.sm, border: `1px solid ${t.border}`,
-              background: t.bgInput, color: t.textMuted, fontFamily: t.fontD, fontSize: 10, fontWeight: 700,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+              padding: '6px 14px', borderRadius: t.r.sm, border: `1px solid ${t.border}`,
+              background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)', color: t.textMuted,
+              fontFamily: t.fontD, fontSize: 10, fontWeight: 700,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+              transition: 'all 0.15s',
             }}>
-              <span style={{ fontSize: 12 }}>←</span> Templates
+              <span style={{ fontSize: 13 }}>←</span> Templates
             </button>
             <Mono size={8}>{solution.title}</Mono>
             <span style={{ color: t.textDim, fontFamily: t.fontM, fontSize: 8 }}>→</span>
@@ -182,19 +199,20 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
 
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
             <div style={{
-              width: 64, height: 64, borderRadius: t.r.lg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 34, background: `linear-gradient(135deg, ${acc}25, ${acc}08)`,
-              border: `1.5px solid ${acc}35`, boxShadow: `0 0 30px ${acc}18, inset 0 1px 0 rgba(255,255,255,0.05)`,
+              width: 72, height: 72, borderRadius: t.r.xl, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 38, background: `linear-gradient(135deg, ${acc}25, ${acc}10)`,
+              border: `1.5px solid ${acc}40`, boxShadow: `0 0 40px ${acc}20, 0 4px 20px ${acc}12, inset 0 1px 0 rgba(255,255,255,0.06)`,
               flexShrink: 0,
             }}>{solution.icon}</div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
                 <span style={{
-                  fontFamily: t.fontM, fontSize: 8, fontWeight: 700, padding: '3px 10px', borderRadius: 4,
-                  background: acc + '15', color: acc, border: `1px solid ${acc}25`, letterSpacing: 1.5,
+                  fontFamily: t.fontM, fontSize: 8, fontWeight: 700, padding: '4px 12px', borderRadius: 5,
+                  background: `linear-gradient(135deg, ${acc}18, ${acc}10)`, color: acc, border: `1px solid ${acc}30`,
+                  letterSpacing: 1.8, boxShadow: `0 1px 6px ${acc}12`,
                 }}>GTT FUTURE STATE</span>
               </div>
-              <h1 style={{ fontFamily: t.fontD, fontSize: 24, fontWeight: 800, color: t.text, margin: '6px 0 0', letterSpacing: -0.5 }}>
+              <h1 style={{ fontFamily: t.fontD, fontSize: 26, fontWeight: 800, color: t.text, margin: '8px 0 0', letterSpacing: -0.5 }}>
                 {solution.solutionName}
               </h1>
               <p style={{ fontFamily: t.fontB, fontSize: 13, color: t.textSoft, margin: '10px 0 0', lineHeight: 1.75, maxWidth: 800 }}>
@@ -207,7 +225,7 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
         {/* ── ARCHITECTURE HIGHLIGHTS ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {solution.architectureHighlights.map(h => (
-            <div key={h.label} style={{ ...panelStyle(acc), padding: '16px 18px' }}>
+            <div key={h.label} style={{ ...panelStyle(acc), padding: '18px 20px', background: `linear-gradient(145deg, ${t.bgCard}, ${acc}03)` }}>
               <div style={glow(acc)} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                 <span style={{ fontSize: 20 }}>{h.icon}</span>
@@ -251,9 +269,22 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
             <div style={{
               position: 'absolute', inset: 0, borderRadius: t.r.md,
               backgroundImage: `radial-gradient(circle, ${isDark ? 'rgba(40,55,85,0.18)' : 'rgba(148,163,184,0.12)'} 1px, transparent 1px)`,
-              backgroundSize: '20px 20px', pointerEvents: 'none',
+              backgroundSize: '16px 16px', pointerEvents: 'none',
             }} />
             {renderDiagram()}
+            <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 10, flexWrap: 'wrap' }}>
+              {(['active', 'optional', 'future-phase', 'not-applicable'] as const).map(status => {
+                const m = APPLICABILITY_META[status];
+                const c = t[m.colorKey];
+                return (
+                  <div key={status} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: 4, background: c, opacity: m.nodeOpacity,
+                      border: status === 'not-applicable' ? `1px dashed ${c}60` : 'none', boxSizing: 'border-box' }} />
+                    <span style={{ fontFamily: t.fontM, fontSize: 7, color: t.textDim, letterSpacing: 0.5 }}>{m.label}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -375,8 +406,10 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
                 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{
-                    width: 22, height: 22, borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: acc + '12', color: acc, fontFamily: t.fontM, fontSize: 9, fontWeight: 800, flexShrink: 0,
+                    width: 24, height: 24, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: `linear-gradient(135deg, ${acc}20, ${acc}08)`, color: acc,
+                    fontFamily: t.fontM, fontSize: 10, fontWeight: 800, flexShrink: 0,
+                    border: `1px solid ${acc}15`,
                   }}>{i + 1}</span>
                   <span style={{ fontFamily: t.fontD, fontSize: 12, fontWeight: 700, color: t.text, flex: 1 }}>{d.title}</span>
                   <span style={{ color: t.textDim, fontSize: 12, transition: 'transform 0.2s', transform: expandedDiff === i ? 'rotate(180deg)' : 'none' }}>▾</span>
@@ -395,18 +428,31 @@ const GttFutureState: React.FC<GttFutureStateProps> = ({ useCaseId, onBack, patt
         <div style={panelStyle(acc)}>
           <div style={glow(acc)} />
           <div style={label}>Implementation Roadmap</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative' }}>
+            {/* Vertical timeline connector */}
+            <div style={{
+              position: 'absolute', left: 28, top: 20, bottom: 20, width: 2,
+              background: `linear-gradient(180deg, ${t.cyan}30, ${t.emerald}30, ${t.amber}30, ${t.violet}30)`,
+              borderRadius: 1, zIndex: 0,
+            }} />
             {solution.implementationNotes.map((note, i) => {
               const phaseColors = [t.cyan, t.emerald, t.amber, t.violet];
               const pc = phaseColors[i % phaseColors.length];
               return (
                 <div key={i} style={{
                   display: 'flex', gap: 16, padding: '16px 18px', borderRadius: t.r.md,
-                  background: isDark ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.015)',
+                  background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.018)',
                   border: `1px solid ${t.borderSubtle}`, position: 'relative', overflow: 'hidden',
+                  zIndex: 1, marginLeft: 14,
                 }}>
                   {/* Phase color bar */}
-                  <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: pc }} />
+                  <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: pc, borderRadius: '2px 0 0 2px' }} />
+                  {/* Timeline dot */}
+                  <div style={{
+                    position: 'absolute', left: -22, top: '50%', transform: 'translateY(-50%)',
+                    width: 10, height: 10, borderRadius: 5, background: pc, border: `2px solid ${t.bgCard}`,
+                    zIndex: 1,
+                  }} />
                   <div style={{ flexShrink: 0, textAlign: 'center', paddingLeft: 4 }}>
                     <div style={{
                       fontFamily: t.fontM, fontSize: 8, fontWeight: 800, color: pc,

@@ -51,15 +51,16 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
 
   return (
     <div style={{
-      width: 320, background: t.bgPanel, borderLeft: `1px solid ${t.border}`,
+      width: 340, background: t.bgPanel, borderLeft: `1px solid ${t.border}`,
       display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden',
+      boxShadow: isDark ? '-8px 0 24px rgba(0,0,0,0.15)' : '-4px 0 16px rgba(0,0,0,0.04)',
     }}>
       {/* Header */}
       <div style={{
-        padding: '14px 16px', borderBottom: `1px solid ${t.border}`,
-        background: gc + '06', position: 'relative', overflow: 'hidden',
+        padding: '16px 18px', borderBottom: `1px solid ${t.border}`,
+        background: `linear-gradient(135deg, ${gc}08, ${gc}03)`, position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${gc}50, transparent)` }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent 5%, ${gc}40 30%, ${gc}70 50%, ${gc}40 70%, transparent 95%)` }} />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <Mono size={8} color={gc}>ELEMENT INSPECTOR</Mono>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -77,9 +78,9 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 20, background: gc + '15', border: `1px solid ${gc}30`, flexShrink: 0,
-            opacity: panelDim,
+            width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22, background: `linear-gradient(135deg, ${gc}18, ${gc}08)`, border: `1px solid ${gc}30`,
+            flexShrink: 0, opacity: panelDim, boxShadow: `0 2px 8px ${gc}10`,
           }}>{el.icon}</div>
           <div>
             <div style={{ fontFamily: t.fontD, fontSize: 13, fontWeight: 700, color: t.text, opacity: panelDim }}>{el.label}</div>
@@ -93,11 +94,15 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
       </div>
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* ── Applicability ── */}
         <div style={sectionGap}>
-          <Mono size={8} color={t.textDim}>Applicability</Mono>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>◉</span>
+            <Mono size={8} color={t.textDim}>Applicability</Mono>
+            <div style={{ flex: 1, height: 1, background: t.borderSubtle }} />
+          </div>
           <PatternElementToggle
             value={el.applicability}
             onChange={v => set('applicability', v)}
@@ -133,7 +138,11 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
 
         {/* ── Identity ── */}
         <div style={{ ...sectionGap, opacity: panelDim }}>
-          <Mono size={8} color={t.textDim}>Identity</Mono>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>◧</span>
+            <Mono size={8} color={t.textDim}>Identity</Mono>
+            <div style={{ flex: 1, height: 1, background: t.borderSubtle }} />
+          </div>
           <div>
             <div style={fieldLabel}>Label</div>
             <input value={el.label} onChange={e => set('label', e.target.value)} style={{ ...inputBase, fontFamily: t.fontD, fontWeight: 600 }} />
@@ -150,7 +159,11 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
 
         {/* ── Quantity ── */}
         <div style={{ ...sectionGap, opacity: panelDim }}>
-          <Mono size={8} color={t.textDim}>Quantity</Mono>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>#</span>
+            <Mono size={8} color={t.textDim}>Quantity</Mono>
+            <div style={{ flex: 1, height: 1, background: t.borderSubtle }} />
+          </div>
           <div>
             <div style={fieldLabel}>Quantity</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -166,7 +179,11 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
 
         {/* ── Deployment ── */}
         <div style={{ ...sectionGap, opacity: panelDim }}>
-          <Mono size={8} color={t.textDim}>Deployment</Mono>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>▸</span>
+            <Mono size={8} color={t.textDim}>Deployment</Mono>
+            <div style={{ flex: 1, height: 1, background: t.borderSubtle }} />
+          </div>
           <div>
             <div style={fieldLabel}>Deployment Role</div>
             <input value={el.deploymentRole} onChange={e => set('deploymentRole', e.target.value)} style={inputBase} />
@@ -185,7 +202,11 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
 
         {/* ── Attributes ── */}
         <div style={{ ...sectionGap, opacity: panelDim }}>
-          <Mono size={8} color={t.textDim}>Attributes</Mono>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>◈</span>
+            <Mono size={8} color={t.textDim}>Attributes</Mono>
+            <div style={{ flex: 1, height: 1, background: t.borderSubtle }} />
+          </div>
           <div>
             <div style={fieldLabel}>Security</div>
             <textarea value={el.securityAttributes} onChange={e => set('securityAttributes', e.target.value)} rows={2} style={textareaBase} />
@@ -202,7 +223,11 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
 
         {/* ── Operations ── */}
         <div style={{ ...sectionGap, opacity: panelDim }}>
-          <Mono size={8} color={t.textDim}>Operations</Mono>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>⚙</span>
+            <Mono size={8} color={t.textDim}>Operations</Mono>
+            <div style={{ flex: 1, height: 1, background: t.borderSubtle }} />
+          </div>
           <div>
             <div style={fieldLabel}>Management Model</div>
             <select value={el.managementModel} onChange={e => set('managementModel', e.target.value)} style={selectBase}>
@@ -217,7 +242,11 @@ const PatternElementInspector: React.FC<Props> = ({ element, api, accent, onClos
 
         {/* ── Customer Notes ── */}
         <div style={sectionGap}>
-          <Mono size={8} color={t.textDim}>Customer Notes</Mono>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 10, opacity: 0.6 }}>✎</span>
+            <Mono size={8} color={t.textDim}>Customer Notes</Mono>
+            <div style={{ flex: 1, height: 1, background: t.borderSubtle }} />
+          </div>
           <textarea
             value={el.customerNotes}
             onChange={e => set('customerNotes', e.target.value)}

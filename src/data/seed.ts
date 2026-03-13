@@ -1,6 +1,6 @@
 import type {
-  Customer, MaturityDomain, MaturityMap, PainItem, PaletteItem,
-  RoadmapTrack, RoadmapItem, ArchTemplate, ArchNode, ArchEdge, NavItem, NodeMeta,
+  Customer, MaturityDomain, MaturityMap, PainItem,
+  RoadmapTrack, RoadmapItem, NavItem,
 } from '../types';
 
 /* ═══════════════════════════════════════════════════
@@ -89,106 +89,6 @@ export const PAIN_ITEMS: PainItem[] = [
 export const INIT_PAIN_SCORES: Record<string, number> = {
   outage: 8, mttr: 7, cloudPerf: 6, secFrag: 9, carrierSprawl: 7,
   visibility: 5, deployDelay: 6, maIntegration: 8, ticketVolume: 4, manualOps: 7, vendorPerf: 3,
-};
-
-/* ═══════════════════════════════════════════════════
-   ARCHITECTURE PALETTE
-   ═══════════════════════════════════════════════════ */
-export const PALETTE: PaletteItem[] = [
-  { type: 'hq', label: 'Headquarters', icon: '🏛', cat: 'Sites', color: '#3b82f6', defaultMeta: { role: 'Primary HQ', status: 'active', criticality: 'critical' } },
-  { type: 'branch', label: 'Branch Office', icon: '🏢', cat: 'Sites', color: '#6366f1', defaultMeta: { role: 'Regional branch', status: 'active', criticality: 'medium' } },
-  { type: 'retail', label: 'Retail / Advisory', icon: '🏪', cat: 'Sites', color: '#8b5cf6', defaultMeta: { role: 'Customer-facing site', status: 'active', criticality: 'medium' } },
-  { type: 'plant', label: 'Manufacturing', icon: '🏭', cat: 'Sites', color: '#a855f7', defaultMeta: { role: 'Production facility', status: 'active', criticality: 'high' } },
-  { type: 'warehouse', label: 'Warehouse / Logistics', icon: '📦', cat: 'Sites', color: '#c084fc', defaultMeta: { role: 'Distribution hub', status: 'active', criticality: 'medium' } },
-  { type: 'callcenter', label: 'Contact Center', icon: '📞', cat: 'Sites', color: '#e879f9', defaultMeta: { role: 'Customer support', status: 'active', criticality: 'high' } },
-  { type: 'sdwan', label: 'SD-WAN Node', icon: '📡', cat: 'Network', color: '#f97316', defaultMeta: { role: 'SD-WAN edge device', status: 'active', criticality: 'high' } },
-  { type: 'router', label: 'Core Router', icon: '🔀', cat: 'Network', color: '#f59e0b', defaultMeta: { role: 'Core routing', status: 'active', criticality: 'critical' } },
-  { type: 'lb', label: 'Load Balancer', icon: '⚖️', cat: 'Network', color: '#ec4899', defaultMeta: { role: 'Traffic distribution', status: 'active', criticality: 'high' } },
-  { type: 'vpn', label: 'VPN Gateway', icon: '🔐', cat: 'Network', color: '#f43f5e', defaultMeta: { role: 'Encrypted tunnel', status: 'active', criticality: 'high' } },
-  { type: 'mpls', label: 'MPLS PE', icon: '🔗', cat: 'Network', color: '#d97706', defaultMeta: { role: 'MPLS provider edge', status: 'decommission', criticality: 'medium' } },
-  { type: 'internet', label: 'Internet Edge', icon: '🌐', cat: 'Network', color: '#10b981', defaultMeta: { role: 'Internet breakout', status: 'active', criticality: 'high' } },
-  { type: 'firewall', label: 'Firewall / NGFW', icon: '🧱', cat: 'Security', color: '#ef4444', defaultMeta: { role: 'Perimeter security', status: 'active', criticality: 'critical' } },
-  { type: 'sase', label: 'SASE / SSE', icon: '🔒', cat: 'Security', color: '#dc2626', defaultMeta: { role: 'Secure access service edge', status: 'planned', criticality: 'critical' } },
-  { type: 'ztna', label: 'ZTNA Broker', icon: '🛡️', cat: 'Security', color: '#b91c1c', defaultMeta: { role: 'Zero trust access', status: 'planned', criticality: 'critical' } },
-  { type: 'waf', label: 'WAF', icon: '🌊', cat: 'Security', color: '#fca5a5', defaultMeta: { role: 'Web application firewall', status: 'active', criticality: 'high' } },
-  { type: 'cloud_aws', label: 'AWS Region', icon: '☁️', cat: 'Cloud', color: '#f97316', defaultMeta: { role: 'AWS cloud region', status: 'active', criticality: 'critical' } },
-  { type: 'cloud_azure', label: 'Azure Region', icon: '☁️', cat: 'Cloud', color: '#3b82f6', defaultMeta: { role: 'Azure cloud region', status: 'active', criticality: 'critical' } },
-  { type: 'cloud_gcp', label: 'GCP Region', icon: '☁️', cat: 'Cloud', color: '#22d3ee', defaultMeta: { role: 'GCP cloud region', status: 'active', criticality: 'high' } },
-  { type: 'saas', label: 'SaaS Platform', icon: '💻', cat: 'Cloud', color: '#06b6d4', defaultMeta: { role: 'SaaS application', status: 'active', criticality: 'high' } },
-  { type: 'colo', label: 'Colocation', icon: '🔌', cat: 'Cloud', color: '#2dd4bf', defaultMeta: { role: 'Colo facility', status: 'active', criticality: 'high' } },
-  { type: 'dc', label: 'Data Center', icon: '🖥️', cat: 'Cloud', color: '#14b8a6', defaultMeta: { role: 'Enterprise data center', status: 'active', criticality: 'critical' } },
-  { type: 'ai_edge', label: 'AI / Edge Node', icon: '🤖', cat: 'Edge / Compute', color: '#84cc16', defaultMeta: { role: 'Edge compute / AI', status: 'planned', criticality: 'medium' } },
-  { type: 'iot_gw', label: 'IoT Gateway', icon: '📲', cat: 'Edge / Compute', color: '#65a30d', defaultMeta: { role: 'IoT aggregation', status: 'planned', criticality: 'medium' } },
-  { type: 'vdc', label: 'Virtual Data Center', icon: '💾', cat: 'Edge / Compute', color: '#4ade80', defaultMeta: { role: 'Virtual DC / VPC', status: 'active', criticality: 'high' } },
-  { type: 'cdn', label: 'CDN / Edge Cache', icon: '⚡', cat: 'Edge / Compute', color: '#a3e635', defaultMeta: { role: 'Content delivery', status: 'active', criticality: 'medium' } },
-  { type: 'noc', label: 'NOC / SOC', icon: '👁️', cat: 'Operations', color: '#eab308', defaultMeta: { role: 'Operations center', status: 'active', criticality: 'high' } },
-  { type: 'observability', label: 'Observability Stack', icon: '📊', cat: 'Operations', color: '#facc15', defaultMeta: { role: 'Monitoring & analytics', status: 'active', criticality: 'high' } },
-  { type: 'automation', label: 'Automation Engine', icon: '⚙️', cat: 'Operations', color: '#a3a3a3', defaultMeta: { role: 'Orchestration', status: 'planned', criticality: 'medium' } },
-  { type: 'managed', label: 'Managed Service', icon: '🛠️', cat: 'Operations', color: '#94a3b8', defaultMeta: { role: 'MSP layer', status: 'planned', criticality: 'medium' } },
-];
-
-export const PALETTE_CATS = ['Sites', 'Network', 'Security', 'Cloud', 'Edge / Compute', 'Operations'];
-
-export const EMPTY_META: NodeMeta = { name: '', role: '', status: 'active', owner: '', notes: '', criticality: 'medium', phase: 0 };
-
-export const palItem = (type: string) => PALETTE.find(p => p.type === type) || PALETTE[0];
-
-/* ═══════════════════════════════════════════════════
-   ARCHITECTURE TEMPLATES
-   ═══════════════════════════════════════════════════ */
-const currentNodes: ArchNode[] = [
-  { id: 't1', type: 'hq', label: 'NYC Headquarters', x: 440, y: 50, meta: { name: 'NYC Headquarters', role: 'Primary HQ — 2,500 users', status: 'active', owner: 'Robert Tanaka', notes: 'Dual ISP, MPLS primary', criticality: 'critical', phase: 0 } },
-  { id: 't2', type: 'dc', label: 'East Data Center', x: 180, y: 200, meta: { name: 'East Data Center', role: 'Primary DC — Equinix NY5', status: 'active', owner: 'Robert Tanaka', notes: 'Core compute + storage', criticality: 'critical', phase: 0 } },
-  { id: 't3', type: 'dc', label: 'West Data Center', x: 180, y: 340, meta: { name: 'West Data Center', role: 'DR site — Equinix SV5', status: 'active', owner: 'Robert Tanaka', notes: 'Disaster recovery', criticality: 'high', phase: 0 } },
-  { id: 't4', type: 'firewall', label: 'Core FW Cluster', x: 440, y: 200, meta: { name: 'Core Firewall Cluster', role: 'PA-5260 HA pair', status: 'active', owner: 'Dr. Lisa Park', notes: 'Primary perimeter', criticality: 'critical', phase: 0 } },
-  { id: 't5', type: 'cloud_aws', label: 'AWS us-east-1', x: 700, y: 130, meta: { name: 'AWS us-east-1', role: 'Primary cloud region', status: 'active', owner: 'David Kim', notes: 'Direct Connect 10G', criticality: 'critical', phase: 0 } },
-  { id: 't6', type: 'cloud_azure', label: 'Azure East US', x: 700, y: 280, meta: { name: 'Azure East US', role: 'Secondary cloud', status: 'active', owner: 'David Kim', notes: 'ExpressRoute 5G', criticality: 'high', phase: 0 } },
-  { id: 't7', type: 'branch', label: 'NA Branches (52)', x: 60, y: 460, meta: { name: 'NA Branch Offices', role: '52 sites — MPLS + Internet', status: 'active', owner: 'Robert Tanaka', notes: 'Mixed connectivity', criticality: 'high', phase: 0 } },
-  { id: 't8', type: 'branch', label: 'EMEA Branches (24)', x: 280, y: 460, meta: { name: 'EMEA Branches', role: '24 sites', status: 'active', owner: 'Robert Tanaka', notes: 'London hub', criticality: 'high', phase: 0 } },
-  { id: 't9', type: 'branch', label: 'APAC Branches (11)', x: 500, y: 460, meta: { name: 'APAC Branches', role: '11 sites', status: 'active', owner: 'Robert Tanaka', notes: 'Singapore hub', criticality: 'medium', phase: 0 } },
-  { id: 't10', type: 'sdwan', label: 'SD-WAN Controller', x: 280, y: 330, meta: { name: 'Viptela vManage', role: 'SD-WAN orchestration', status: 'active', owner: 'Robert Tanaka', notes: 'Partial — 34 sites', criticality: 'high', phase: 0 } },
-  { id: 't11', type: 'sase', label: 'Zscaler ZIA/ZPA', x: 560, y: 360, meta: { name: 'Zscaler', role: 'Cloud security — partial', status: 'review', owner: 'Dr. Lisa Park', notes: '34 sites enrolled', criticality: 'high', phase: 0 } },
-  { id: 't12', type: 'firewall', label: 'Cisco ASA (Legacy)', x: 60, y: 330, meta: { name: 'Cisco ASA 5500-X', role: 'Legacy branch FW', status: 'at-risk', owner: 'Dr. Lisa Park', notes: '45 units — EoS Q3 2026!', criticality: 'critical', phase: 0 } },
-  { id: 't13', type: 'mpls', label: 'AT&T MPLS Core', x: 160, y: 460, meta: { name: 'AT&T MPLS', role: 'Primary WAN underlay', status: 'decommission', owner: 'Aisha Patel', notes: '78 circuits', criticality: 'high', phase: 0 } },
-  { id: 't14', type: 'observability', label: 'SolarWinds + PRTG', x: 720, y: 440, meta: { name: 'Legacy Monitoring', role: 'Fragmented monitoring', status: 'at-risk', owner: 'Maria Santos', notes: 'No cloud visibility', criticality: 'medium', phase: 0 } },
-  { id: 't15', type: 'saas', label: 'Salesforce / M365', x: 840, y: 200, meta: { name: 'SaaS Platforms', role: 'Salesforce + M365', status: 'active', owner: 'David Kim', notes: 'Performance complaints', criticality: 'high', phase: 0 } },
-];
-
-const currentEdges: ArchEdge[] = [
-  { from: 't1', to: 't4' }, { from: 't4', to: 't2' }, { from: 't4', to: 't5' },
-  { from: 't4', to: 't6' }, { from: 't2', to: 't3' }, { from: 't7', to: 't13' },
-  { from: 't8', to: 't13' }, { from: 't13', to: 't4' }, { from: 't10', to: 't4' },
-  { from: 't7', to: 't10' }, { from: 't8', to: 't10' }, { from: 't9', to: 't11' },
-  { from: 't11', to: 't5' }, { from: 't11', to: 't6' }, { from: 't5', to: 't15' },
-  { from: 't6', to: 't15' }, { from: 't12', to: 't7' }, { from: 't14', to: 't4' },
-];
-
-export const TEMPLATES: Record<string, ArchTemplate> = {
-  blank: { label: 'Blank Canvas', desc: 'Start from scratch', nodes: [], edges: [] },
-  current: { label: 'Meridian Current-State', desc: 'Pre-loaded estate mapping', nodes: currentNodes, edges: currentEdges },
-  future: {
-    label: 'Target-State Template', desc: 'Cloud-first SASE architecture',
-    nodes: [
-      { id: 'f1', type: 'hq', label: 'NYC HQ (Modernized)', x: 420, y: 50, meta: { name: 'NYC HQ', role: 'SASE-enabled HQ', status: 'planned', owner: 'Robert Tanaka', notes: 'Direct-to-cloud', criticality: 'critical', phase: 2 } },
-      { id: 'f2', type: 'sase', label: 'Global SASE Fabric', x: 420, y: 200, meta: { name: 'Zscaler ZT Exchange', role: 'Unified SASE', status: 'planned', owner: 'Dr. Lisa Park', notes: 'Replaces legacy FW', criticality: 'critical', phase: 1 } },
-      { id: 'f3', type: 'sdwan', label: 'SD-WAN Fabric', x: 180, y: 340, meta: { name: 'SD-WAN Overlay', role: 'Universal underlay', status: 'planned', owner: 'Robert Tanaka', notes: 'All 187 sites', criticality: 'critical', phase: 2 } },
-      { id: 'f4', type: 'cloud_aws', label: 'AWS Multi-Region', x: 660, y: 120, meta: { name: 'AWS Multi-Region', role: 'Primary cloud', status: 'planned', owner: 'David Kim', notes: 'NaaS interconnect', criticality: 'critical', phase: 2 } },
-      { id: 'f5', type: 'cloud_azure', label: 'Azure Multi-Region', x: 660, y: 260, meta: { name: 'Azure', role: 'Secondary + M365', status: 'planned', owner: 'David Kim', notes: 'ExpressRoute', criticality: 'critical', phase: 2 } },
-      { id: 'f6', type: 'cloud_gcp', label: 'GCP us-central', x: 660, y: 400, meta: { name: 'GCP Region', role: 'AI/ML workloads', status: 'planned', owner: 'David Kim', notes: 'Cloud Interconnect', criticality: 'high', phase: 3 } },
-      { id: 'f7', type: 'branch', label: 'Standardized Branches', x: 60, y: 460, meta: { name: '187 Branches', role: 'Golden template', status: 'planned', owner: 'Robert Tanaka', notes: 'SD-WAN + SASE', criticality: 'high', phase: 2 } },
-      { id: 'f8', type: 'observability', label: 'Full-Stack DEM', x: 420, y: 450, meta: { name: 'Unified Observability', role: 'DEM + NPM + AIOps', status: 'planned', owner: 'Maria Santos', notes: 'ThousandEyes + Datadog', criticality: 'high', phase: 2 } },
-      { id: 'f9', type: 'ai_edge', label: 'Edge AI Nodes', x: 180, y: 460, meta: { name: 'Edge AI Compute', role: 'Distributed inference', status: 'planned', owner: 'David Kim', notes: 'Phase 3', criticality: 'medium', phase: 3 } },
-      { id: 'f10', type: 'automation', label: 'NetOps Automation', x: 660, y: 460, meta: { name: 'Network-as-Code', role: 'CI/CD pipeline', status: 'planned', owner: 'Maria Santos', notes: 'Terraform + Ansible', criticality: 'high', phase: 2 } },
-      { id: 'f11', type: 'ztna', label: 'ZTNA Universal', x: 230, y: 200, meta: { name: 'Zero Trust Access', role: 'Identity-first access', status: 'planned', owner: 'Dr. Lisa Park', notes: 'Replaces VPN', criticality: 'critical', phase: 1 } },
-    ],
-    edges: [
-      { from: 'f1', to: 'f2' }, { from: 'f2', to: 'f4' }, { from: 'f2', to: 'f5' },
-      { from: 'f2', to: 'f6' }, { from: 'f7', to: 'f3' }, { from: 'f3', to: 'f2' },
-      { from: 'f11', to: 'f2' }, { from: 'f7', to: 'f9' }, { from: 'f8', to: 'f2' },
-      { from: 'f8', to: 'f3' }, { from: 'f10', to: 'f3' }, { from: 'f10', to: 'f2' },
-      { from: 'f1', to: 'f11' },
-    ],
-  },
 };
 
 /* ═══════════════════════════════════════════════════

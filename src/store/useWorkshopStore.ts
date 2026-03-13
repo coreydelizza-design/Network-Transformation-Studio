@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import type { PainScores, MaturityMap, ArchNode, ArchEdge, WorkshopNote } from '../types';
-import { INIT_PAIN_SCORES, INIT_MATURITY, TEMPLATES, EMPTY_META } from '../data/seed';
+import type { PainScores, MaturityMap, WorkshopNote } from '../types';
+import { INIT_PAIN_SCORES, INIT_MATURITY } from '../data/seed';
 
 interface WorkshopState {
   // Navigation
@@ -20,13 +20,6 @@ interface WorkshopState {
   // Maturity
   maturity: MaturityMap;
   setMaturityScore: (key: string, field: 'current' | 'target', value: number) => void;
-
-  // Architecture canvas
-  archNodes: ArchNode[];
-  archEdges: ArchEdge[];
-  setArchNodes: (nodes: ArchNode[]) => void;
-  setArchEdges: (edges: ArchEdge[]) => void;
-  loadTemplate: (key: string) => void;
 
   // Notes
   notes: WorkshopNote[];
@@ -55,19 +48,6 @@ export const useWorkshopStore = create<WorkshopState>((set) => ({
         [key]: { ...s.maturity[key], [field]: value },
       },
     })),
-
-  archNodes: TEMPLATES.current.nodes.map((n) => ({ ...n, meta: { ...EMPTY_META, ...n.meta } })),
-  archEdges: [...TEMPLATES.current.edges],
-  setArchNodes: (nodes) => set({ archNodes: nodes }),
-  setArchEdges: (edges) => set({ archEdges: edges }),
-  loadTemplate: (key) => {
-    const t = TEMPLATES[key];
-    if (!t) return;
-    set({
-      archNodes: t.nodes.map((n) => ({ ...n, meta: { ...EMPTY_META, ...n.meta } })),
-      archEdges: [...t.edges],
-    });
-  },
 
   notes: [
     { id: 1, type: 'assumption', text: 'All branches have minimum 100 Mbps broadband for SD-WAN underlay.' },

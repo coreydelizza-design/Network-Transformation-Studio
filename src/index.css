@@ -121,15 +121,6 @@ textarea:focus, input:focus, select:focus {
   transition-timing-function: ease;
 }
 
-/* ═══════════════════════════════════════════════════
-   CANVAS NODE STYLES
-   ═══════════════════════════════════════════════════ */
-.canvas-node {
-  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
-}
-.canvas-node:hover {
-  transform: scale(1.03);
-}
 
 /* ═══════════════════════════════════════════════════
    BUTTON BASE

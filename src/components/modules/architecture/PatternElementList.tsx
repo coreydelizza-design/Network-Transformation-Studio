@@ -36,10 +36,13 @@ const PatternElementList: React.FC<Props> = ({ elements, accent, api }) => {
         const catColor = groupColors[items[0]?.group] || accent;
         return (
           <div key={cat}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-              <div style={{ width: 4, height: 4, borderRadius: 2, background: catColor }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '4px 0' }}>
+              <div style={{ width: 3, height: 12, borderRadius: 2, background: catColor }} />
               <Mono size={8} color={catColor}>{cat}</Mono>
-              <Mono size={8}>{items.length}</Mono>
+              <div style={{ flex: 1, height: 1, background: t.borderSubtle, marginLeft: 4 }} />
+              <span style={{ fontFamily: t.fontM, fontSize: 8, color: t.textDim, fontWeight: 600,
+                background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                padding: '1px 6px', borderRadius: 3 }}>{items.length}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {items.map(el => {

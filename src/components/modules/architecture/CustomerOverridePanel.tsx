@@ -35,11 +35,12 @@ const CustomerOverridePanel: React.FC<Props> = ({ api, accent }) => {
     <div style={toggleRow}>
       <span style={{ fontFamily: t.fontB, fontSize: 11, color: t.textSoft }}>{label}</span>
       <button onClick={onToggle} style={{
-        width: 36, height: 18, borderRadius: 9, border: 'none', cursor: 'pointer', position: 'relative',
-        background: value ? t.emerald + '30' : t.borderSubtle, transition: 'all 0.2s',
+        width: 38, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer', position: 'relative',
+        background: value ? t.emerald + '35' : t.borderSubtle, transition: 'all 0.2s',
+        boxShadow: value ? `0 0 8px ${t.emerald}15` : 'none',
       }}>
         <div style={{
-          width: 12, height: 12, borderRadius: 6, position: 'absolute', top: 3,
+          width: 14, height: 14, borderRadius: 7, position: 'absolute', top: 3,
           left: value ? 21 : 3, background: value ? t.emerald : t.textDim,
           transition: 'all 0.2s',
         }} />
@@ -63,10 +64,11 @@ const CustomerOverridePanel: React.FC<Props> = ({ api, accent }) => {
 
   return (
     <div style={{
-      background: t.bgCard, borderRadius: t.r.lg, border: `1px solid ${accent}20`,
-      padding: 18, position: 'relative', overflow: 'hidden', backdropFilter: 'blur(12px)',
+      background: `linear-gradient(135deg, ${t.bgCard}, ${accent}03)`, borderRadius: t.r.lg,
+      border: `1px solid ${accent}20`,
+      padding: 20, position: 'relative', overflow: 'hidden', backdropFilter: 'blur(12px)',
     }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${accent}50, transparent)` }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent 5%, ${accent}40 30%, ${accent}70 50%, ${accent}40 70%, transparent 95%)` }} />
 
       <div style={{ fontFamily: t.fontM, fontSize: 9, color: t.textDim, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 600, marginBottom: 14 }}>
         Customer Environment
@@ -81,6 +83,7 @@ const CustomerOverridePanel: React.FC<Props> = ({ api, accent }) => {
         </div>
 
         {/* Cloud Providers */}
+        <div style={{ height: 1, background: t.borderSubtle, margin: '2px 0' }} />
         <div>
           <div style={fieldLabel}>Cloud Providers</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -103,6 +106,7 @@ const CustomerOverridePanel: React.FC<Props> = ({ api, accent }) => {
         </div>
 
         {/* Service Toggles */}
+        <div style={{ height: 1, background: t.borderSubtle, margin: '2px 0' }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Toggle label="DIA Required" value={cs.diaRequired} onToggle={() => api.setSpecific('diaRequired', !cs.diaRequired)} />
           <Toggle label="MPLS Retained" value={cs.mplsRetained} onToggle={() => api.setSpecific('mplsRetained', !cs.mplsRetained)} />
@@ -114,6 +118,7 @@ const CustomerOverridePanel: React.FC<Props> = ({ api, accent }) => {
         </div>
 
         {/* Text fields */}
+        <div style={{ height: 1, background: t.borderSubtle, margin: '2px 0' }} />
         <div>
           <div style={fieldLabel}>Segmentation Requirement</div>
           <input value={cs.segmentationRequirement} onChange={e => api.setSpecific('segmentationRequirement', e.target.value)} placeholder="e.g., PCI, guest WiFi isolation, IoT" style={inputBase} />
