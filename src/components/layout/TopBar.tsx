@@ -1,13 +1,13 @@
 import React from 'react';
 import { useTheme } from '../../theme/useTheme';
-import { NAV, CUSTOMER } from '../../data/seed';
+import { NAV } from '../../data/seed';
 import { useWorkshopStore } from '../../store/useWorkshopStore';
 import { Chip, PhaseTag } from '../shared/Primitives';
 import ThemeToggle from '../shared/ThemeToggle';
 
 const TopBar: React.FC = () => {
   const { t } = useTheme();
-  const { activeTab: tab, copilotOpen: copilot, toggleCopilot } = useWorkshopStore();
+  const { activeTab: tab, copilotOpen: copilot, toggleCopilot, customer } = useWorkshopStore();
 
   return (
     <div style={{
@@ -21,7 +21,7 @@ const TopBar: React.FC = () => {
         <Chip color={t.emerald}>● Live Session</Chip>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ fontFamily: t.fontM, fontSize: 11, color: t.textDim }}>{CUSTOMER.shortName} · {CUSTOMER.workshopDate}</span>
+        <span style={{ fontFamily: t.fontM, fontSize: 11, color: t.textDim }}>{customer.shortName} · {customer.workshopDate}</span>
         <ThemeToggle size={26} />
         <button onClick={toggleCopilot} style={{
           display: 'flex', alignItems: 'center', gap: 7, padding: '6px 15px', borderRadius: t.r.sm,

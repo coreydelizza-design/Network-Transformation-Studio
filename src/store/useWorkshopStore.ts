@@ -1,8 +1,16 @@
 import { create } from 'zustand';
-import type { PainScores, MaturityMap, ArchNode, ArchEdge, WorkshopNote, CustomerRequirements, PatternElement, GttService } from '../types';
-import { INIT_PAIN_SCORES, INIT_MATURITY, TEMPLATES, EMPTY_META, DEFAULT_REQUIREMENTS, GTT_PATTERN_ELEMENTS, GTT_USE_CASE_TEMPLATES, INITIAL_GTT_SERVICES } from '../data/seed';
+import type { PainScores, MaturityMap, ArchNode, ArchEdge, WorkshopNote, CustomerRequirements, PatternElement, GttService, Customer, Stakeholder } from '../types';
+import { INIT_PAIN_SCORES, INIT_MATURITY, TEMPLATES, EMPTY_META, DEFAULT_REQUIREMENTS, GTT_PATTERN_ELEMENTS, GTT_USE_CASE_TEMPLATES, INITIAL_GTT_SERVICES, CUSTOMER } from '../data/seed';
 
 interface WorkshopState {
+  // Customer profile
+  customer: Customer;
+  updateCustomer: (fields: Partial<Customer>) => void;
+  updateStakeholder: (index: number, fields: Partial<Stakeholder>) => void;
+  addStakeholder: (stakeholder: Stakeholder) => void;
+  removeStakeholder: (index: number) => void;
+  resetCustomer: () => void;
+
   // Navigation
   activeTab: number;
   setActiveTab: (tab: number) => void;
@@ -62,6 +70,38 @@ interface WorkshopState {
 }
 
 export const useWorkshopStore = create<WorkshopState>((set) => ({
+  customer: { ...CUSTOMER, stakeholders: CUSTOMER.stakeholders.map((s) => ({ ...s })) },
+  updateCustomer: (fields) =>
+    set((s) => {
+      const updated = { ...s.customer, ...fields };
+      if (fields.name && !fields.shortName) {
+        updated.shortName = fields.name.split(/\s+/)[0];
+      }
+      return { customer: updated };
+    }),
+  updateStakeholder: (index, fields) =>
+    set((s) => ({
+      customer: {
+        ...s.customer,
+        stakeholders: s.customer.stakeholders.map((sh, i) =>
+          i === index ? { ...sh, ...fields } : sh,
+        ),
+      },
+    })),
+  addStakeholder: (stakeholder) =>
+    set((s) => ({
+      customer: { ...s.customer, stakeholders: [...s.customer.stakeholders, stakeholder] },
+    })),
+  removeStakeholder: (index) =>
+    set((s) => ({
+      customer: {
+        ...s.customer,
+        stakeholders: s.customer.stakeholders.filter((_, i) => i !== index),
+      },
+    })),
+  resetCustomer: () =>
+    set({ customer: { ...CUSTOMER, stakeholders: CUSTOMER.stakeholders.map((s) => ({ ...s })) } }),
+
   activeTab: 0,
   setActiveTab: (tab) => set({ activeTab: tab }),
 
